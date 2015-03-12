@@ -57,6 +57,20 @@ level 5.
 For small scale test a max of 10<sup>9</sup> and a stop level of 6 is a good
 choice. 
 
+Building stress test
+--------------------
+
+```
+mvn package 
+```
+
+This will create a jar in target:
+
+```
+$ ls target/fluo-stress-*
+target/fluo-stress-1.0.0-beta-1-SNAPSHOT.jar  
+```
+
 Run trie stress test using Mini Fluo
 ----------------------------------------
 
@@ -66,138 +80,106 @@ These tests can be run using `mvn verify`.
 Run trie stress test on cluster
 -------------------------------
 
-If you want to run the trie stress on the cluster, first set up HDFS, YARN, Zookeeper, 
-and Accumulo. Next, initialize Fluo with following configuration:
+The [bin directory](/bin) contains a set of scripts to help run this test on a
+cluster.  These scripts make the following assumpitions.
+
+ * `FLUO_HOME` environment variable is set.  If not set, then set it in `conf/env.sh`.
+ * Hadoop `yarn` command is on path.
+ * Hadoop `hadoop` command is on path.
+
+
+Before running any of the scipts, copy [conf/env.sh.example](/conf/env.sh.example) 
+to `conf/env.sh`, then inspect and modify the file.
+
+Before initializing Fluo, run [configure-fluo.sh](/bin/configure-fluo.sh).  This script
+will modify fluo.properties and copy the stress jar to the fluo observer
+directory.  It will set the following in fluo.properties.
+
 ```
 io.fluo.observer.0=io.fluo.stress.trie.NodeObserver
-io.fluo.app.trie.nodeSize=8
-io.fluo.app.trie.stopLevel=6
+io.fluo.app.trie.nodeSize=X
+io.fluo.app.trie.stopLevel=Y
 ```
 
-Next, build the module:
-```
-mvn package assembly:single
-```
+After configuring Fluo, initialize and start Fluo.  Then execute the
+[run-test.sh](/bin/run-test.sh) script.  This script loads a lot of data
+directly into Accumulo w/o transactions and then incrementally loads smaller
+amounts of data using transactions.  After incremnetally loading some data it
+computes the expected number of unique integers using map reduce.  Then it
+prints the number of unique integers computed by Fluo.  The counts from Fluo
+may be off if Fluo is still processing data.  After [fluo-434][1] is
+implemented, the script could wait before printing.
 
-This will create two jars in target:
-```
-$ ls target/fluo-stress-*
-target/fluo-stress-1.0.0-beta-1-SNAPSHOT.jar  
-target/fluo-stress-1.0.0-beta-1-SNAPSHOT-jar-with-dependencies.jar
-```
+Additional Scripts
+------------------
 
-Copy fluo-stress-1.0.0-beta-1-SNAPSHOT.jar to lib/observers in your Fluo deployment:
-```
-cp target/fluo-stress-1.0.0-beta-1-SNAPSHOT.jar $DEPLOY/lib/observers
-```
-
-On a node where Hadoop is set up, run the following command to generate a set
-of random numbers in HDFS.  This command starts a map reduce job to generate
-the random integers.
+The script [generate.sh](/bin/generate.sh) starts a map reduce job to generate
+random integers.
 
 ```
-yarn jar <jarPath> io.fluo.stress.trie.Generate <num files> <num per file> <max> <out dir>
+generate.sh <num files> <num per file> <max> <out dir>
 
 where:
 
-jarPath   = target/fluo-stress-1.0.0-beta-1-SNAPSHOT-jar-with-dependencies.jar
 num files = Number of files to generate (and number of map task)
 numPerMap = Number of random numbers to generate per file
 max       = Generate random numbers between 0 and max
 out dir   = Output directory
 ```
 
-Before loading data, consider splitting the Accumulo table using the following
-command.
+The script [split.sh](/bin/split.sh) pre-splits the Accumulo table used by
+Fluo.  Consider running this command before loading data.
 
 ```
-java -cp <jarPath> io.fluo.stress.trie.Split <fluo props> <num tablets> <max>
+split.sh <num tablets> <max>
 
 where:
 
-fluoProps   = Path to fluo.properties
 num tablets = Num tablets to create for lowest level of tree.  Will create less tablets for higher levels based on the max.
 ```
 After generating random numbers, load them into Fluo with one of the following
-commands.  When the Fluo table is empty, you can use the command below to
-initialize it using map reduce.  This simulates the case where a user has a lot
-of initial data to load into Fluo.  This command should only be run when the
-table is empty because it writes directly to the Fluo table w/o using
-transactions.  
+commands.  The script [init.sh](/bin/init.sh) intializes any empty table using
+map reduce.  This simulates the case where a user has a lot of initial data to
+load into Fluo.  This command should only be run when the table is empty
+because it writes directly to the Fluo table w/o using transactions.  
 
 ```
-yarn jar <jarPath> io.fluo.stress.trie.Init <fluo props> <input dir> <tmp dir>
+init.sh <input dir> <tmp dir> <num reducers>
 
 where:
 
-input dir = A directory with file created by io.fluo.stress.trie.Generate
-node size = Size of node in bits which must be a divisor of 32/64
-tmp dir   = This command runs two map reduce jobs and needs an intermediate directory to store data.
+input dir    = A directory with file created by io.fluo.stress.trie.Generate
+node size    = Size of node in bits which must be a divisor of 32/64
+tmp dir      = This command runs two map reduce jobs and needs an intermediate directory to store data.
+num reducers = Number of reduce task map reuduce job should run
 ```
 
-While `Init`requires an empty Fluo table, `Load` can be run on a table with
-existing data. It starts a map reduce job that executes load transactions.
-Loading the same directory multiple times should not result in incorrect
-counts.
+Run the [load.sh](/bin/load.sh) script on a table with existing data. It starts
+a map reduce job that executes load transactions.  Loading the same directory
+multiple times should not result in incorrect counts.
 
 ```
-yarn jar <jarPath> io.fluo.stress.trie.Load <fluo props> <input dir>
+load.sh <input dir>
 ```
 
-After loading data, run the following command to check the status of the
-computation of the number of unique integers within Fluo.  This command will
-print two numbers, the sum of the root nodes and number of root nodes.  If
-there are outstanding notification to process, this count may not be accurate.
-
-
-```
-java -cp <jarPath> io.fluo.stress.trie.Print <fluo props>
-```
-
-In order to know how many unique numbers are expected, run the following
-command.  This command runs a map reduce job that calculates the number of
-unique integers.  This command can take a list of directories created by
-multiple runs of `io.fluo.stress.trie.Generate`
+After loading data, run the [print.sh](/bin/print.sh) script to check the
+status of the computation of the number of unique integers within Fluo.  This
+command will print two numbers, the sum of the root nodes and number of root
+nodes.  If there are outstanding notification to process, this count may not be
+accurate.
 
 ```
-yarn jar <jarPath> io.fluo.stress.trie.Unique <input dir>{ <input dir>}
+print.sh
 ```
 
-Using these commands, one should be able to execute a test like the following.
-This test scenario loads a lot of data directly into Accumulo w/o transactions
-and then incrementally loads smaller amounts of data using transactions.
- 
-```bash
-#!/bin/bash
-STRESS_JAR=/changeme/fluo-stress-1.0.0-beta-1-SNAPSHOT-jar-with-dependencies.jar
-FLUO_PROPS=$FLUO_HOME/conf/fluo.properties
-MAX=$((10**9))
-SPLITS=17
-MAPS=17
-REDUCES=17
-GEN_INIT=$((10**6))
-GEN_INCR=$((10**3))
-
-hadoop fs -rm -r /stress/
-#add splits to Fluo table
-java -cp $STRESS_JAR io.fluo.stress.trie.Split $FLUO_PROPS $SPLITS $MAX
-
-#generate and load intial data using map reduce writing directly to table
-yarn jar $STRESS_JAR io.fluo.stress.trie.Generate $MAPS $((GEN_INIT / MAPS)) $MAX /stress/init
-yarn jar $STRESS_JAR io.fluo.stress.trie.Init -Dmapreduce.job.reduces=$REDUCES $FLUO_PROPS /stress/init /stress/initTmp
-hadoop fs -rm -r /stress/initTmp
-
-#load data incrementally
-for i in {1..10}; do
-  yarn jar $STRESS_JAR io.fluo.stress.trie.Generate $MAPS $((GEN_INCR / MAPS)) $MAX /stress/$i
-  yarn jar $STRESS_JAR io.fluo.stress.trie.Load $FLUO_PROPS /stress/$i
-  #TODO could reload the same dataset sometimes, maybe when i%5 == 0 or something
-  sleep 30
-done
-
-#print unique counts 
-yarn jar $STRESS_JAR io.fluo.stress.trie.Unique -Dmapreduce.job.reduces=$REDUCES /stress/*
-java -cp $STRESS_JAR io.fluo.stress.trie.Print $FLUO_PROPS 
+In order to know how many unique numbers are expected, run the [unique.sh](/bin/unique.sh)
+script.  This scrpt runs a map reduce job that calculates the number of
+unique integers.  This script can take a list of directories created by
+multiple runs of [generate.sh](/bin/generate.sh)
 
 ```
+unique.sh <num reducers> <input dir>{ <input dir>}
+```
+
+[1]: https://github.com/fluo-io/fluo/issues/434
 
