@@ -35,8 +35,8 @@ else
 fi
 
 #delete existing config in fluo.properties if it exist
-sed -i '/io.fluo.observer/d' $FLUO_PROPS
-sed -i '/io.fluo.app.trie/d' $FLUO_PROPS
+$SED '/io.fluo.observer/d' $FLUO_PROPS
+$SED '/io.fluo.app.trie/d' $FLUO_PROPS
 
 #append stress specific config
 echo "io.fluo.observer.0=io.fluo.stress.trie.NodeObserver" >> $FLUO_PROPS

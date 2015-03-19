@@ -26,3 +26,8 @@ fi
 command -v yarn >/dev/null 2>&1 || { echo >&2 "I require yarn but it's not installed.  Aborting."; exit 1; }
 command -v hadoop >/dev/null 2>&1 || { echo >&2 "I require hadoop but it's not installed.  Aborting."; exit 1; }
 
+if [[ "$OSTYPE" == "darwin"* ]]; then
+  export SED="sed -i .bak"
+else
+  export SED="sed -i"
+fi
