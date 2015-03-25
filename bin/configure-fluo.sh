@@ -2,6 +2,7 @@
 
 BIN_DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 SKIP_STRESS_JAR_CHECK="true"
+SKIP_FLUO_PROPS_CHECK="true"
 
 . $BIN_DIR/load-env.sh
 
@@ -20,8 +21,12 @@ then
   exit 1;
 fi
 
+if [ ! -d $FLUO_HOME/apps/$APP_NAME ]; then
+  $FLUO_HOME/bin/fluo new $APP_NAME
+fi
+
 #copy stess jar
-cp $STRESS_JAR $FLUO_HOME/lib/observers
+cp $STRESS_JAR $FLUO_HOME/apps/$APP_NAME/lib
 
 #determine a good stop level
 if (("$MAX" <= $((10**9)))) 
@@ -42,4 +47,3 @@ $SED '/io.fluo.app.trie/d' $FLUO_PROPS
 echo "io.fluo.observer.0=io.fluo.stress.trie.NodeObserver" >> $FLUO_PROPS
 echo "io.fluo.app.trie.nodeSize=8" >> $FLUO_PROPS
 echo "io.fluo.app.trie.stopLevel=$STOP" >> $FLUO_PROPS
-

@@ -92,8 +92,9 @@ Before running any of the scipts, copy [conf/env.sh.example](/conf/env.sh.exampl
 to `conf/env.sh`, then inspect and modify the file.
 
 Before initializing Fluo, run [configure-fluo.sh](/bin/configure-fluo.sh).  This script
-will modify fluo.properties and copy the stress jar to the fluo observer
-directory.  It will set the following in fluo.properties.
+will create a new fluo app called `stress` (which can be changed by `APP_NAME` in your 
+env.sh).  It will then modify the application's fluo.properties and copy the stress jar
+to the `lib/` directory of the app.  It will set the following in fluo.properties:
 
 ```
 io.fluo.observer.0=io.fluo.stress.trie.NodeObserver
@@ -101,9 +102,15 @@ io.fluo.app.trie.nodeSize=X
 io.fluo.app.trie.stopLevel=Y
 ```
 
-After configuring Fluo, initialize and start Fluo.  Then execute the
-[run-test.sh](/bin/run-test.sh) script.  This script loads a lot of data
-directly into Accumulo w/o transactions and then incrementally loads smaller
+After configuring, initialize and start the Fluo 'stress' application using the commands below:
+
+```
+fluo init stress
+fluo start stress
+```
+
+Next, execute the [run-test.sh](/bin/run-test.sh) script.  This script loads a lot 
+of data directly into Accumulo w/o transactions and then incrementally loads smaller
 amounts of data using transactions.  After incremnetally loading some data it
 computes the expected number of unique integers using map reduce.  Then it
 prints the number of unique integers computed by Fluo.  The counts from Fluo
