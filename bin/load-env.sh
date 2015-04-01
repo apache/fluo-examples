@@ -11,10 +11,14 @@ then
   exit 1
 fi
 
-if [ ! -f "$FLUO_PROPS" ]
-then
+if [ -z "$APP_NAME" ]; then
+  echo "APP_NAME is not set!" 
+  exit 1
+fi
+
+if [ ! -f "$FLUO_PROPS" ] && [ -z "$SKIP_FLUO_PROPS_CHECK" ]; then
   echo "Fluo properties file not found : $FLUO_PROPS" 
-  exit 1;
+  exit 1
 fi
 
 if [ ! -f "$STRESS_JAR" ] && [ -z "$SKIP_STRESS_JAR_CHECK" ]
