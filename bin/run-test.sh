@@ -27,13 +27,24 @@ for i in $(seq 1 $ITERATIONS); do
 done
 
 #print unique counts
-echo "*****Calculating # of unique intergers using map reduce*****"
+echo "*****Calculating # of unique integers using MapReduce*****"
 $BIN_DIR/unique.sh $REDUCES /stress/* >$LOG_DIR/unique.out 2>$LOG_DIR/unique.err
 grep UNIQUE $LOG_DIR/unique.err
 
-#TODO wait till everything is processed
+echo "*****Wait for Fluo to finish processing*****"
+$FLUO_HOME/bin/fluo wait $APP_NAME
 
-echo "*****Printing # of unique integers calculated by Fluo.  May be off if Fluo is still processing.*****"
+echo "*****Printing # of unique integers calculated by Fluo*****"
 $BIN_DIR/print.sh >$LOG_DIR/print.out 2>$LOG_DIR/print.err
 cat $LOG_DIR/print.out
 
+echo "*****Verifying Fluo & MapReduce results match*****"
+MAPR_TOTAL=`grep UNIQUE $LOG_DIR/unique.err | cut -d = -f 2`
+FLUO_TOTAL=`grep "Total at root" $LOG_DIR/print.out | cut -d ' ' -f 5`
+if [ $MAPR_TOTAL -eq $FLUO_TOTAL ]; then
+  echo "Success! Fluo & MapReduce both calculated $FLUO_TOTAL unique integers"
+  exit 0
+else
+  echo "ERROR - Results do not match. Fluo calculated $FLUO_TOTAL unique integers while MapReduce calculated $MAPR_TOTAL integers"
+  exit 1
+fi
