@@ -92,7 +92,7 @@ Before running any of the scipts, copy [conf/env.sh.example](/conf/env.sh.exampl
 to `conf/env.sh`, then inspect and modify the file.
 
 Before initializing Fluo, run [configure-fluo.sh](/bin/configure-fluo.sh).  This script
-will create a new fluo app called `stress` (which can be changed by `APP_NAME` in your 
+will create a new fluo app called `stress` (which can be changed by `FLUO_APP_NAME` in your 
 env.sh).  It will then modify the application's fluo.properties and copy the stress jar
 to the `lib/` directory of the app.  It will set the following in fluo.properties:
 

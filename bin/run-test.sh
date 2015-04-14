@@ -32,7 +32,7 @@ $BIN_DIR/unique.sh $REDUCES /stress/* >$LOG_DIR/unique.out 2>$LOG_DIR/unique.err
 grep UNIQUE $LOG_DIR/unique.err
 
 echo "*****Wait for Fluo to finish processing*****"
-$FLUO_HOME/bin/fluo wait $APP_NAME
+$FLUO_HOME/bin/fluo wait $FLUO_APP_NAME
 
 echo "*****Printing # of unique integers calculated by Fluo*****"
 $BIN_DIR/print.sh >$LOG_DIR/print.out 2>$LOG_DIR/print.err
