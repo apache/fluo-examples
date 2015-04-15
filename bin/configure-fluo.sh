@@ -21,12 +21,12 @@ then
   exit 1;
 fi
 
-if [ ! -d $FLUO_HOME/apps/$APP_NAME ]; then
-  $FLUO_HOME/bin/fluo new $APP_NAME
+if [ ! -d $FLUO_HOME/apps/$FLUO_APP_NAME ]; then
+  $FLUO_HOME/bin/fluo new $FLUO_APP_NAME
 fi
 
 #copy stess jar
-cp $STRESS_JAR $FLUO_HOME/apps/$APP_NAME/lib
+cp $STRESS_JAR $FLUO_HOME/apps/$FLUO_APP_NAME/lib
 
 #determine a good stop level
 if (("$MAX" <= $((10**9)))) 

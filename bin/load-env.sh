@@ -11,8 +11,8 @@ then
   exit 1
 fi
 
-if [ -z "$APP_NAME" ]; then
-  echo "APP_NAME is not set!" 
+if [ -z "$FLUO_APP_NAME" ]; then
+  echo "FLUO_APP_NAME is not set!" 
   exit 1
 fi
 
