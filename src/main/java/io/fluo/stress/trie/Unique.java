@@ -71,6 +71,7 @@ public class Unique extends Configured implements Tool {
 
     JobConf job = new JobConf(getConf());
 
+    job.setJobName(Unique.class.getName());
     job.setJarByClass(Unique.class);
 
     job.setInputFormat(SequenceFileInputFormat.class);
