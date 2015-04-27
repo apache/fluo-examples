@@ -6,6 +6,12 @@ BIN_DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 mkdir -p $LOG_DIR
 rm $LOG_DIR/*
 
+#configure balancer for fluo table
+if [[ $(accumulo version) == *1.6* ]]
+then
+  (cd $BIN_DIR/../git/stress-balancer; ./config-accumulo.sh $FLUO_PROPS)
+fi #TODO setup RegexGroupBalancer built into Accumulo 1.7.0... may be easier to do from java
+
 hadoop fs -rm -r /stress/
 #add splits to Fluo table
 echo "*****Presplitting table*****"

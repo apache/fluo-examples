@@ -15,14 +15,15 @@ then
   (cd $BIN_DIR/..;mvn package -DskipTests)
 fi
 
+if [[ $(accumulo version) == *1.6* ]]
+then
+  (cd $BIN_DIR/..; mkdir -p git; cd git;git clone https://github.com/keith-turner/stress-balancer.git; cd stress-balancer; ./config-fluo.sh $FLUO_PROPS)
+fi
+
 if [ ! -f "$STRESS_JAR" ]
 then
   echo "Stress jar not found : $STRESS_JAR" 
   exit 1;
-fi
-
-if [ ! -d $FLUO_HOME/apps/$FLUO_APP_NAME ]; then
-  $FLUO_HOME/bin/fluo new $FLUO_APP_NAME
 fi
 
 #copy stess jar
