@@ -28,9 +28,13 @@ import io.fluo.api.config.FluoConfiguration;
 import io.fluo.api.data.Bytes;
 import io.fluo.api.data.RowColumn;
 import io.fluo.core.util.AccumuloUtil;
-import io.fluo.mapreduce.FluoFileOutputFormat;
+import io.fluo.mapreduce.FluoKeyValue;
+import io.fluo.mapreduce.FluoKeyValueGenerator;
 import org.apache.accumulo.core.client.Connector;
+import org.apache.accumulo.core.client.mapreduce.AccumuloFileOutputFormat;
 import org.apache.accumulo.core.client.mapreduce.lib.partition.RangePartitioner;
+import org.apache.accumulo.core.data.Key;
+import org.apache.accumulo.core.data.Value;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.FileSystem;
@@ -50,23 +54,23 @@ public class Init  extends Configured implements Tool {
 
   public static final String TRIE_STOP_LEVEL_PROP = FluoConfiguration.FLUO_PREFIX + ".stress.trie.stopLevel";
   public static final String TRIE_NODE_SIZE_PROP = FluoConfiguration.FLUO_PREFIX + ".stress.trie.node.size";
-  
+
   public static class UniqueReducer extends Reducer<LongWritable,NullWritable,LongWritable,NullWritable>{
     @Override
-    protected void reduce(LongWritable key, Iterable<NullWritable> values, Context context) throws IOException, InterruptedException {      
+    protected void reduce(LongWritable key, Iterable<NullWritable> values, Context context) throws IOException, InterruptedException {
       context.write(key, NullWritable.get());
     }
   }
-  
-  
+
+
   public static class InitMapper extends Mapper<LongWritable,NullWritable,Text,LongWritable> {
 
     private int stopLevel;
     private int nodeSize;
     private static final LongWritable ONE = new LongWritable(1);
-    
+
     private Text outputKey = new Text();
-    
+
     @Override
     protected void setup(Context context) throws IOException, InterruptedException {
       nodeSize = context.getConfiguration().getInt(TRIE_NODE_SIZE_PROP, 0);
@@ -86,35 +90,41 @@ public class Init  extends Configured implements Tool {
       }
     }
   }
-  
+
   public static class InitCombiner extends Reducer<Text,LongWritable,Text,LongWritable>{
 
-    
+
     private LongWritable outputVal = new LongWritable();
-    
+
     @Override
     protected void reduce(Text key, Iterable<LongWritable> values, Context context) throws IOException, InterruptedException{
       long sum = 0;
       for (LongWritable l : values) {
         sum += l.get();
       }
-      
+
       outputVal.set(sum);
       context.write(key, outputVal);
     }
   }
-  
-  
-  public static class InitReducer extends Reducer<Text,LongWritable,RowColumn,Bytes>{
+
+
+  public static class InitReducer extends Reducer<Text,LongWritable,Key,Value>{
+    private FluoKeyValueGenerator fkvg = new FluoKeyValueGenerator();
+
     @Override
     protected void reduce(Text key, Iterable<LongWritable> values, Context context) throws IOException, InterruptedException{
       long sum = 0;
       for (LongWritable l : values) {
         sum += l.get();
       }
-      
-      RowColumn rowCol = new RowColumn(Bytes.of(key.getBytes(), 0, key.getLength()), Constants.COUNT_SEEN_COL);
-      context.write(rowCol, Bytes.of(sum+""));
+
+      fkvg.setRow(key).setColumn(Constants.COUNT_SEEN_COL).setValue(sum+"");
+
+      FluoKeyValue[] kvs = fkvg.getKeyValues();
+      for (FluoKeyValue kv : kvs) {
+        context.write(kv.getKey(), kv.getValue());
+      }
     }
   }
 
@@ -128,41 +138,41 @@ public class Init  extends Configured implements Tool {
     FluoConfiguration props = new FluoConfiguration(new File(args[0]));
     Path input = new Path(args[1]);
     Path tmp = new Path(args[2]);
-    
+
     int stopLevel;
     int nodeSize;
     try(FluoClient client = FluoFactory.newClient(props)){
       nodeSize = client.getAppConfiguration().getInt(Constants.NODE_SIZE_PROP);
       stopLevel = client.getAppConfiguration().getInt(Constants.STOP_LEVEL_PROP);
     }
-    
+
     int ret = unique(input, new Path(tmp,"nums"));
     if(ret != 0)
       return ret;
-    
+
     return buildTree(nodeSize, props, tmp, stopLevel);
   }
 
   private int unique(Path input, Path tmp) throws Exception {
     Job job = Job.getInstance(getConf());
     job.setJarByClass(Init.class);
-    
+
     job.setJobName(Init.class.getName()+"_unique");
-    
+
     job.setInputFormatClass(SequenceFileInputFormat.class);
     SequenceFileInputFormat.addInputPath(job, input);
-    
+
     job.setReducerClass(UniqueReducer.class);
-    
+
     job.setOutputKeyClass(LongWritable.class);
     job.setOutputValueClass(NullWritable.class);
-    
+
     job.setOutputFormatClass(SequenceFileOutputFormat.class);
     SequenceFileOutputFormat.setOutputPath(job, tmp);
-    
+
     boolean success = job.waitForCompletion(true);
     return success ? 0 : 1;
-    
+
   }
 
   private int buildTree(int nodeSize, FluoConfiguration props, Path tmp, int stopLevel) throws Exception {
@@ -171,10 +181,10 @@ public class Init  extends Configured implements Tool {
     job.setJarByClass(Init.class);
 
     job.setJobName(Init.class.getName()+"_load");
-    
+
     job.setMapOutputKeyClass(Text.class);
     job.setMapOutputValueClass(LongWritable.class);
-    
+
     job.getConfiguration().setInt(TRIE_NODE_SIZE_PROP, nodeSize);
     job.getConfiguration().setInt(TRIE_STOP_LEVEL_PROP, stopLevel);
 
@@ -185,27 +195,27 @@ public class Init  extends Configured implements Tool {
     job.setCombinerClass(InitCombiner.class);
     job.setReducerClass(InitReducer.class);
 
-    job.setOutputFormatClass(FluoFileOutputFormat.class);
+    job.setOutputFormatClass(AccumuloFileOutputFormat.class);
     job.setOutputKeyClass(RowColumn.class);
     job.setOutputValueClass(Bytes.class);
-    
+
     job.setPartitionerClass(RangePartitioner.class);
-    
+
     FileSystem fs = FileSystem.get(job.getConfiguration());
     Connector conn = AccumuloUtil.getConnector(props);
-    
+
     Path splitsPath = new Path(tmp, "splits.txt");
-    
+
     Collection<Text> splits1 = writeSplits(props, fs, conn, splitsPath);
-    
+
     RangePartitioner.setSplitFile(job, splitsPath.toString());
     job.setNumReduceTasks(splits1.size() + 1);
-    
+
     Path outPath = new Path(tmp, "out");
-    FluoFileOutputFormat.setOutputPath(job, outPath);
-    
+    AccumuloFileOutputFormat.setOutputPath(job, outPath);
+
     boolean success = job.waitForCompletion(true);
-    
+
     if(success){
       Path failPath = new Path(tmp, "failures");
       fs.mkdirs(failPath);
@@ -225,10 +235,10 @@ public class Init  extends Configured implements Tool {
     out.close();
     return splits1;
   }
-  
+
   public static void main(String[] args) throws Exception {
     int ret = ToolRunner.run(new Init(), args);
     System.exit(ret);
   }
-  
+
 }
