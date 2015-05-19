@@ -23,9 +23,9 @@ import java.util.Set;
 
 import io.fluo.api.config.ObserverConfiguration;
 import io.fluo.api.types.TypedSnapshot;
-import io.fluo.core.ITBaseMini;
 import io.fluo.core.client.LoaderExecutorImpl;
 import io.fluo.core.impl.Environment;
+import io.fluo.integration.ITBaseMini;
 import io.fluo.stress.trie.Constants;
 import io.fluo.stress.trie.Node;
 import io.fluo.stress.trie.NodeObserver;

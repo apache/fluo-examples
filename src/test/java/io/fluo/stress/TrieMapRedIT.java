@@ -24,7 +24,7 @@ import java.util.Collections;
 import java.util.List;
 
 import io.fluo.api.config.ObserverConfiguration;
-import io.fluo.core.ITBaseMini;
+import io.fluo.integration.ITBaseMini;
 import io.fluo.stress.trie.Constants;
 import io.fluo.stress.trie.Generate;
 import io.fluo.stress.trie.Init;

@@ -181,11 +181,18 @@
     </dependency>
     <dependency>
       <groupId>io.fluo</groupId>
-      <artifactId>fluo-core</artifactId>
+      <artifactId>fluo-integration</artifactId>
       <version>${fluo.version}</version>
       <type>test-jar</type>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>io.fluo</groupId>
+      <artifactId>fluo-mini</artifactId>
+      <version>${fluo.version}</version>
+      <scope>test</scope>
+    </dependency>
+
     <dependency>
       <groupId>commons-io</groupId>
       <artifactId>commons-io</artifactId>
