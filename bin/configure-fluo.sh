@@ -8,9 +8,6 @@ SKIP_FLUO_PROPS_CHECK="true"
 
 if [ "$BUILD" = "true" ]
 then
-  #install fluo
-  #TODO can remove when fluo beta is released.  The following will install fluo beta snapshot.
-  (cd $BIN_DIR/..; mkdir -p git; cd git; git clone https://github.com/fluo-io/fluo.git; cd fluo; mvn install -DskipTests -Dfindbugs.skip=true)
   #build fluo-stress
   (cd $BIN_DIR/..;mvn package -DskipTests)
 fi

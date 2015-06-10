@@ -68,7 +68,7 @@ This will create a jar in target:
 
 ```
 $ ls target/fluo-stress-*
-target/fluo-stress-1.0.0-beta-1-SNAPSHOT.jar  
+target/fluo-stress-0.0.1-SNAPSHOT.jar  
 ```
 
 Run trie stress test using Mini Fluo
@@ -113,9 +113,7 @@ Next, execute the [run-test.sh](/bin/run-test.sh) script.  This script loads a l
 of data directly into Accumulo w/o transactions and then incrementally loads smaller
 amounts of data using transactions.  After incremnetally loading some data it
 computes the expected number of unique integers using map reduce.  Then it
-prints the number of unique integers computed by Fluo.  The counts from Fluo
-may be off if Fluo is still processing data.  After [fluo-434][1] is
-implemented, the script could wait before printing.
+prints the number of unique integers computed by Fluo. 
 
 Additional Scripts
 ------------------
@@ -187,6 +185,4 @@ multiple runs of [generate.sh](/bin/generate.sh)
 ```
 unique.sh <num reducers> <input dir>{ <input dir>}
 ```
-
-[1]: https://github.com/fluo-io/fluo/issues/434
 
