@@ -35,7 +35,7 @@
   <properties>
     <accumulo.version>1.6.2</accumulo.version>
     <hadoop.version>2.3.0</hadoop.version>
-    <fluo.version>1.0.0-beta-1-SNAPSHOT</fluo.version>
+    <fluo.version>1.0.0-beta-1</fluo.version>
     <slf4j.version>1.7.12</slf4j.version>
   </properties>
 
