@@ -196,8 +196,6 @@ public class Init  extends Configured implements Tool {
     job.setReducerClass(InitReducer.class);
 
     job.setOutputFormatClass(AccumuloFileOutputFormat.class);
-    job.setOutputKeyClass(RowColumn.class);
-    job.setOutputValueClass(Bytes.class);
 
     job.setPartitionerClass(RangePartitioner.class);
 
