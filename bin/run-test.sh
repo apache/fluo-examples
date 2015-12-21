@@ -68,7 +68,7 @@ fi # TODO setup RegexGroupBalancer built into Accumulo 1.7.0... may be easier to
 hadoop fs -rm -r /stress/
 # add splits to Fluo table
 echo "*****Presplitting table*****"
-$BIN_DIR/split.sh $SPLITS $MAX >$LOG_DIR/split.out 2>$LOG_DIR/split.err
+$BIN_DIR/split.sh $SPLITS >$LOG_DIR/split.out 2>$LOG_DIR/split.err
 
 # generate and load intial data using map reduce writing directly to table
 echo "*****Generating and loading initial data set*****"
@@ -82,6 +82,7 @@ for i in $(seq 1 $ITERATIONS); do
   $BIN_DIR/generate.sh $MAPS $((GEN_INCR / MAPS)) $MAX /stress/$i >$LOG_DIR/generate_$i.out 2>$LOG_DIR/generate_$i.err
   $BIN_DIR/load.sh /stress/$i >$LOG_DIR/load_$i.out 2>$LOG_DIR/load_$i.err
   # TODO could reload the same dataset sometimes, maybe when i%5 == 0 or something
+  $BIN_DIR/compact-ll.sh $MAX $COMPACT_CUTOFF >$LOG_DIR/compact-ll_$i.out 2>$LOG_DIR/compact-ll_$i.err
   sleep $SLEEP
 done
 
