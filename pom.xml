@@ -174,12 +174,6 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.apache.accumulo</groupId>
-      <artifactId>accumulo-test</artifactId>
-      <version>${accumulo.version}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
       <groupId>io.fluo</groupId>
       <artifactId>fluo-integration</artifactId>
       <version>${fluo.version}</version>

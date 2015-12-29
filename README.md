@@ -178,3 +178,20 @@ multiple runs of [generate.sh](/bin/generate.sh)
 unique.sh <num reducers> <input dir>{ <input dir>}
 ```
 
+As transactions execute they leave a trail of history behind.  The nodes in the
+lower levels of the tree are updated by many transactions and therefore have a
+long history trail.  A long transactional history can slow down transactions.
+Forcing a compaction in Accumulo will clean up this history.  However
+compacting the entire table is expensive.  To avoid this expense, compact only the
+lower levels of the tree.  The following command will compact levels of the
+tree with a maximum number of nodes less than the specified cutoff.
+
+```
+compact-ll.sh <max> <cutoff>
+```
+
+where:
+
+```
+cutoff    = Any level of the tree with a maximum number of nodes that is less than this cutoff will be compacted.
+```
