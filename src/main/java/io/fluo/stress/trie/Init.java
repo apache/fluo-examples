@@ -25,8 +25,6 @@ import java.util.Collection;
 import io.fluo.api.client.FluoClient;
 import io.fluo.api.client.FluoFactory;
 import io.fluo.api.config.FluoConfiguration;
-import io.fluo.api.data.Bytes;
-import io.fluo.api.data.RowColumn;
 import io.fluo.core.util.AccumuloUtil;
 import io.fluo.mapreduce.FluoKeyValue;
 import io.fluo.mapreduce.FluoKeyValueGenerator;
@@ -50,18 +48,17 @@ import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 
-public class Init  extends Configured implements Tool {
+public class Init extends Configured implements Tool {
 
   public static final String TRIE_STOP_LEVEL_PROP = FluoConfiguration.FLUO_PREFIX + ".stress.trie.stopLevel";
   public static final String TRIE_NODE_SIZE_PROP = FluoConfiguration.FLUO_PREFIX + ".stress.trie.node.size";
 
-  public static class UniqueReducer extends Reducer<LongWritable,NullWritable,LongWritable,NullWritable>{
+  public static class UniqueReducer extends Reducer<LongWritable,NullWritable,LongWritable,NullWritable> {
     @Override
     protected void reduce(LongWritable key, Iterable<NullWritable> values, Context context) throws IOException, InterruptedException {
       context.write(key, NullWritable.get());
     }
   }
-
 
   public static class InitMapper extends Mapper<LongWritable,NullWritable,Text,LongWritable> {
 
@@ -91,13 +88,12 @@ public class Init  extends Configured implements Tool {
     }
   }
 
-  public static class InitCombiner extends Reducer<Text,LongWritable,Text,LongWritable>{
-
+  public static class InitCombiner extends Reducer<Text,LongWritable,Text,LongWritable> {
 
     private LongWritable outputVal = new LongWritable();
 
     @Override
-    protected void reduce(Text key, Iterable<LongWritable> values, Context context) throws IOException, InterruptedException{
+    protected void reduce(Text key, Iterable<LongWritable> values, Context context) throws IOException, InterruptedException {
       long sum = 0;
       for (LongWritable l : values) {
         sum += l.get();
@@ -108,18 +104,17 @@ public class Init  extends Configured implements Tool {
     }
   }
 
-
-  public static class InitReducer extends Reducer<Text,LongWritable,Key,Value>{
+  public static class InitReducer extends Reducer<Text,LongWritable,Key,Value> {
     private FluoKeyValueGenerator fkvg = new FluoKeyValueGenerator();
 
     @Override
-    protected void reduce(Text key, Iterable<LongWritable> values, Context context) throws IOException, InterruptedException{
+    protected void reduce(Text key, Iterable<LongWritable> values, Context context) throws IOException, InterruptedException {
       long sum = 0;
       for (LongWritable l : values) {
         sum += l.get();
       }
 
-      fkvg.setRow(key).setColumn(Constants.COUNT_SEEN_COL).setValue(sum+"");
+      fkvg.setRow(key).setColumn(Constants.COUNT_SEEN_COL).setValue(sum + "");
 
       FluoKeyValue[] kvs = fkvg.getKeyValues();
       for (FluoKeyValue kv : kvs) {
@@ -141,13 +136,13 @@ public class Init  extends Configured implements Tool {
 
     int stopLevel;
     int nodeSize;
-    try(FluoClient client = FluoFactory.newClient(props)){
+    try (FluoClient client = FluoFactory.newClient(props)) {
       nodeSize = client.getAppConfiguration().getInt(Constants.NODE_SIZE_PROP);
       stopLevel = client.getAppConfiguration().getInt(Constants.STOP_LEVEL_PROP);
     }
 
-    int ret = unique(input, new Path(tmp,"nums"));
-    if(ret != 0)
+    int ret = unique(input, new Path(tmp, "nums"));
+    if (ret != 0)
       return ret;
 
     return buildTree(nodeSize, props, tmp, stopLevel);
@@ -157,7 +152,7 @@ public class Init  extends Configured implements Tool {
     Job job = Job.getInstance(getConf());
     job.setJarByClass(Init.class);
 
-    job.setJobName(Init.class.getName()+"_unique");
+    job.setJobName(Init.class.getName() + "_unique");
 
     job.setInputFormatClass(SequenceFileInputFormat.class);
     SequenceFileInputFormat.addInputPath(job, input);
@@ -180,7 +175,7 @@ public class Init  extends Configured implements Tool {
 
     job.setJarByClass(Init.class);
 
-    job.setJobName(Init.class.getName()+"_load");
+    job.setJobName(Init.class.getName() + "_load");
 
     job.setMapOutputKeyClass(Text.class);
     job.setMapOutputValueClass(LongWritable.class);
@@ -214,10 +209,10 @@ public class Init  extends Configured implements Tool {
 
     boolean success = job.waitForCompletion(true);
 
-    if(success){
+    if (success) {
       Path failPath = new Path(tmp, "failures");
       fs.mkdirs(failPath);
-      conn.tableOperations().importDirectory(props.getAccumuloTable(), outPath.toString(),failPath.toString(), false);
+      conn.tableOperations().importDirectory(props.getAccumuloTable(), outPath.toString(), failPath.toString(), false);
     }
     return success ? 0 : 1;
   }
