@@ -13,7 +13,7 @@ if [ ! -d $FLUO_HOME/apps/$FLUO_APP_NAME ]; then
   $FLUO_HOME/bin/fluo new $FLUO_APP_NAME
 else
   echo "Restarting '$FLUO_APP_NAME' application.  Errors may be printed if it's not running..."
-  $FLUO_HOME/bin/fluo kill $FLUO_APP_NAME || true
+  $FLUO_HOME/bin/fluo stop $FLUO_APP_NAME || true
   rm -rf $FLUO_HOME/apps/$FLUO_APP_NAME
   $FLUO_HOME/bin/fluo new $FLUO_APP_NAME
 fi
@@ -70,11 +70,13 @@ hadoop fs -rm -r /stress/
 echo "*****Presplitting table*****"
 $BIN_DIR/split.sh $SPLITS >$LOG_DIR/split.out 2>$LOG_DIR/split.err
 
-# generate and load intial data using map reduce writing directly to table
-echo "*****Generating and loading initial data set*****"
-$BIN_DIR/generate.sh $MAPS $((GEN_INIT / MAPS)) $MAX /stress/init >$LOG_DIR/generate_0.out 2>$LOG_DIR/generate_0.err
-$BIN_DIR/init.sh /stress/init /stress/initTmp $REDUCES >$LOG_DIR/init.out 2>$LOG_DIR/init.err
-hadoop fs -rm -r /stress/initTmp
+if (( GEN_INIT > 0 )); then
+  # generate and load intial data using map reduce writing directly to table
+  echo "*****Generating and loading initial data set*****"
+  $BIN_DIR/generate.sh $MAPS $((GEN_INIT / MAPS)) $MAX /stress/init >$LOG_DIR/generate_0.out 2>$LOG_DIR/generate_0.err
+  $BIN_DIR/init.sh /stress/init /stress/initTmp $REDUCES >$LOG_DIR/init.out 2>$LOG_DIR/init.err
+  hadoop fs -rm -r /stress/initTmp
+fi
 
 # load data incrementally
 for i in $(seq 1 $ITERATIONS); do
