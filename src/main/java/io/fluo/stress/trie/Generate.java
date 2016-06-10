@@ -22,7 +22,7 @@ import java.io.IOException;
 import java.util.Random;
 
 import com.google.common.base.Preconditions;
-import io.fluo.api.config.FluoConfiguration;
+import org.apache.fluo.api.config.FluoConfiguration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.LongWritable;

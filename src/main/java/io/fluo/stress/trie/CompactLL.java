@@ -2,11 +2,11 @@ package io.fluo.stress.trie;
 
 import java.io.File;
 
-import io.fluo.api.client.FluoClient;
-import io.fluo.api.client.FluoFactory;
-import io.fluo.api.config.FluoConfiguration;
-import io.fluo.core.util.AccumuloUtil;
 import org.apache.accumulo.core.client.Connector;
+import org.apache.fluo.api.client.FluoClient;
+import org.apache.fluo.api.client.FluoFactory;
+import org.apache.fluo.api.config.FluoConfiguration;
+import org.apache.fluo.core.util.AccumuloUtil;
 import org.apache.hadoop.io.Text;
 
 /**

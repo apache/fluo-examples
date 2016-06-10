@@ -23,8 +23,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import io.fluo.api.config.ObserverConfiguration;
-import io.fluo.integration.ITBaseMini;
 import io.fluo.stress.trie.Constants;
 import io.fluo.stress.trie.Generate;
 import io.fluo.stress.trie.Init;
@@ -35,15 +33,17 @@ import io.fluo.stress.trie.Unique;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationConverter;
 import org.apache.commons.io.FileUtils;
+import org.apache.fluo.api.config.ObserverConfiguration;
+import org.apache.fluo.integration.ITBaseMini;
 import org.apache.hadoop.util.ToolRunner;
 import org.junit.Assert;
 import org.junit.Test;
 
-/** 
+/**
  * Tests Trie Stress Test using MapReduce Ingest
  */
 public class TrieMapRedIT extends ITBaseMini {
-  
+
   @Override
   protected List<ObserverConfiguration> getObservers() {
     return Collections.singletonList(new ObserverConfiguration(NodeObserver.class.getName()));
@@ -54,7 +54,7 @@ public class TrieMapRedIT extends ITBaseMini {
     config.setProperty(Constants.STOP_LEVEL_PROP, 0);
     config.setProperty(Constants.NODE_SIZE_PROP, 8);
   }
-  
+
   static void generate(int numMappers, int numPerMapper, int max, File out1) throws Exception {
     int ret = ToolRunner.run(new Generate(), new String[] {"-D", "mapred.job.tracker=local", "-D", "fs.defaultFS=file:///", "" + numMappers,
         numPerMapper + "", max + "", out1.toURI().toString()});
@@ -127,7 +127,7 @@ public class TrieMapRedIT extends ITBaseMini {
     miniFluo.waitForObservers();
 
     Assert.assertEquals(new Print.Stats(0, ucount2, false), Print.getStats(config));
-    
+
     File out3 = new File(testDir, "nums-3");
     generate(2, 100, 500, out3);
     load(8, fluoPropsFile, out3);

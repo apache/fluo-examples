@@ -19,10 +19,10 @@ package io.fluo.stress.trie;
 import java.io.File;
 import java.io.IOException;
 
-import io.fluo.api.client.Loader;
-import io.fluo.api.config.FluoConfiguration;
-import io.fluo.mapreduce.FluoOutputFormat;
 import org.apache.commons.configuration.ConfigurationConverter;
+import org.apache.fluo.api.client.Loader;
+import org.apache.fluo.api.config.FluoConfiguration;
+import org.apache.fluo.mapreduce.FluoOutputFormat;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.LongWritable;

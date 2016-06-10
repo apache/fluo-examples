@@ -18,13 +18,13 @@ import java.io.File;
 import java.util.TreeSet;
 
 import com.google.common.base.Strings;
-import io.fluo.api.client.FluoClient;
-import io.fluo.api.client.FluoFactory;
-import io.fluo.api.config.FluoConfiguration;
-import io.fluo.core.util.AccumuloUtil;
 import org.apache.accumulo.core.client.AccumuloException;
 import org.apache.accumulo.core.client.AccumuloSecurityException;
 import org.apache.accumulo.core.client.Connector;
+import org.apache.fluo.api.client.FluoClient;
+import org.apache.fluo.api.client.FluoFactory;
+import org.apache.fluo.api.config.FluoConfiguration;
+import org.apache.fluo.core.util.AccumuloUtil;
 import org.apache.hadoop.io.Text;
 
 public class Split {

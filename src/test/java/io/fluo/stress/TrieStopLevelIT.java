@@ -19,13 +19,13 @@ package io.fluo.stress;
 import java.util.Collections;
 import java.util.List;
 
-import io.fluo.api.client.Snapshot;
-import io.fluo.api.config.ObserverConfiguration;
-import io.fluo.api.data.Bytes;
 import io.fluo.stress.trie.Constants;
 import io.fluo.stress.trie.Node;
 import io.fluo.stress.trie.NodeObserver;
 import org.apache.commons.configuration.Configuration;
+import org.apache.fluo.api.client.Snapshot;
+import org.apache.fluo.api.config.ObserverConfiguration;
+import org.apache.fluo.api.data.Bytes;
 import org.junit.Assert;
 import org.junit.Test;
 

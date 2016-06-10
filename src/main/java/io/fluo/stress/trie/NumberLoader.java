@@ -15,11 +15,11 @@ package io.fluo.stress.trie;
 
 import java.util.Map;
 
-import io.fluo.api.client.Loader;
-import io.fluo.api.client.TransactionBase;
-import io.fluo.api.data.Column;
-import io.fluo.api.types.TypedSnapshotBase.Value;
-import io.fluo.api.types.TypedTransactionBase;
+import org.apache.fluo.api.client.Loader;
+import org.apache.fluo.api.client.TransactionBase;
+import org.apache.fluo.api.data.Column;
+import org.apache.fluo.api.types.TypedSnapshotBase.Value;
+import org.apache.fluo.api.types.TypedTransactionBase;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
