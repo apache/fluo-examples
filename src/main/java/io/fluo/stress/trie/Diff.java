@@ -6,36 +6,27 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import org.apache.fluo.api.client.FluoClient;
 import org.apache.fluo.api.client.FluoFactory;
 import org.apache.fluo.api.client.Snapshot;
+import org.apache.fluo.api.client.scanner.ColumnScanner;
+import org.apache.fluo.api.client.scanner.RowScanner;
 import org.apache.fluo.api.config.FluoConfiguration;
-import org.apache.fluo.api.config.ScannerConfiguration;
-import org.apache.fluo.api.data.Bytes;
-import org.apache.fluo.api.data.Column;
+import org.apache.fluo.api.data.ColumnValue;
 import org.apache.fluo.api.data.Span;
-import org.apache.fluo.api.iterator.ColumnIterator;
-import org.apache.fluo.api.iterator.RowIterator;
 
 public class Diff {
   public static Map<String, Long> getRootCount(FluoClient client, Snapshot snap, int level,
       int stopLevel, int nodeSize) throws Exception {
-    ScannerConfiguration scanConfig = new ScannerConfiguration();
-    scanConfig.setSpan(Span.prefix(String.format("%02d:", level)));
-    scanConfig.fetchColumn(Constants.COUNT_SEEN_COL.getFamily(),
-        Constants.COUNT_SEEN_COL.getQualifier());
-    scanConfig.fetchColumn(Constants.COUNT_WAIT_COL.getFamily(),
-        Constants.COUNT_WAIT_COL.getQualifier());
-
-    RowIterator rowIter = snap.get(scanConfig);
 
     HashMap<String, Long> counts = new HashMap<>();
 
-    while (rowIter.hasNext()) {
-      Entry<Bytes, ColumnIterator> rowEntry = rowIter.next();
-      String row = rowEntry.getKey().toString();
+    RowScanner rows = snap.scanner().over(Span.prefix(String.format("%02d:", level)))
+        .fetch(Constants.COUNT_SEEN_COL, Constants.COUNT_WAIT_COL).byRow().build();
+
+    for (ColumnScanner columns : rows) {
+      String row = columns.getsRow();
       Node node = new Node(row);
 
       while (node.getLevel() > stopLevel) {
@@ -46,10 +37,8 @@ public class Diff {
       long count = counts.getOrDefault(stopRow, 0L);
 
       if (node.getNodeSize() == nodeSize) {
-        ColumnIterator colIter = rowEntry.getValue();
-        while (colIter.hasNext()) {
-          Entry<Column, Bytes> colEntry = colIter.next();
-          count += Long.parseLong(colEntry.getValue().toString());
+        for (ColumnValue colVal : columns) {
+          count += Long.parseLong(colVal.getsValue());
         }
       } else {
         throw new RuntimeException("TODO");
@@ -81,7 +70,7 @@ public class Diff {
 
       // TODO 8
       for (int level = stopLevel + 1; level <= 8; level++) {
-        System.out.printf("Level %d:\n",level);
+        System.out.printf("Level %d:\n", level);
 
         Map<String, Long> counts = getRootCount(client, snap, level, stopLevel, nodeSize);
 
@@ -95,7 +84,7 @@ public class Diff {
             System.out.printf("\tdiff: %s %d %d\n", row, c1, c2);
           }
 
-          if(c2 > 0){
+          if (c2 > 0) {
             sum += c2;
           }
         }
@@ -108,7 +97,7 @@ public class Diff {
           System.out.printf("\textra: %s %d\n", row, c);
         }
 
-        System.out.println("\tsum "+sum);
+        System.out.println("\tsum " + sum);
       }
     }
   }

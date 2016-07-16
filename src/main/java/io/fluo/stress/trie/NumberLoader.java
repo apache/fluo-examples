@@ -18,8 +18,8 @@ import java.util.Map;
 import org.apache.fluo.api.client.Loader;
 import org.apache.fluo.api.client.TransactionBase;
 import org.apache.fluo.api.data.Column;
-import org.apache.fluo.api.types.TypedSnapshotBase.Value;
-import org.apache.fluo.api.types.TypedTransactionBase;
+import org.apache.fluo.recipes.core.types.TypedSnapshotBase.Value;
+import org.apache.fluo.recipes.core.types.TypedTransactionBase;
 
 import static com.google.common.base.Preconditions.checkArgument;
 

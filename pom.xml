@@ -35,7 +35,8 @@
   <properties>
     <accumulo.version>1.6.4</accumulo.version>
     <hadoop.version>2.6.3</hadoop.version>
-    <fluo.version>1.0.0-beta-3-SNAPSHOT</fluo.version>
+    <fluo.version>1.0.0-incubating-SNAPSHOT</fluo.version>
+    <fluo-recipes.version>1.0.0-beta-3-SNAPSHOT</fluo-recipes.version>
     <slf4j.version>1.7.12</slf4j.version>
   </properties>
 
@@ -123,6 +124,11 @@
       <groupId>org.apache.fluo</groupId>
       <artifactId>fluo-mapreduce</artifactId>
       <version>${fluo.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.fluo</groupId>
+      <artifactId>fluo-recipes-core</artifactId>
+      <version>${fluo-recipes.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.accumulo</groupId>

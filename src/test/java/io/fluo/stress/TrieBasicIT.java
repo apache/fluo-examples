@@ -1,17 +1,15 @@
 /*
  * Copyright 2014 Fluo authors (see AUTHORS)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
  */
 package io.fluo.stress;
 
@@ -25,13 +23,13 @@ import io.fluo.stress.trie.Constants;
 import io.fluo.stress.trie.Node;
 import io.fluo.stress.trie.NodeObserver;
 import io.fluo.stress.trie.NumberLoader;
-import org.apache.commons.configuration.Configuration;
 import org.apache.fluo.api.client.FluoClient;
 import org.apache.fluo.api.client.FluoFactory;
 import org.apache.fluo.api.client.LoaderExecutor;
 import org.apache.fluo.api.config.ObserverConfiguration;
-import org.apache.fluo.api.types.TypedSnapshot;
+import org.apache.fluo.api.config.SimpleConfiguration;
 import org.apache.fluo.integration.ITBaseMini;
+import org.apache.fluo.recipes.core.types.TypedSnapshot;
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -53,7 +51,7 @@ public class TrieBasicIT extends ITBaseMini {
   }
 
   @Override
-  protected void setAppConfig(Configuration config){
+  protected void setAppConfig(SimpleConfiguration config) {
     config.setProperty(Constants.STOP_LEVEL_PROP, 0);
   }
 
@@ -84,33 +82,41 @@ public class TrieBasicIT extends ITBaseMini {
 
   private void runTrieTest(int ingestNum, int maxValue, int nodeSize) throws Exception {
 
-    log.info("Ingesting "+ingestNum+" unique numbers with a nodeSize of "+nodeSize+" bits");
+    log.info("Ingesting " + ingestNum + " unique numbers with a nodeSize of " + nodeSize + " bits");
 
     config.setLoaderThreads(0);
     config.setLoaderQueueSize(0);
 
-    try(FluoClient fluoClient = FluoFactory.newClient(config); LoaderExecutor le = client.newLoaderExecutor()) {
-      Random random = new Random();
-      Set<Integer> ingested = new HashSet<>();
-      for (int i = 0; i < ingestNum; i++) {
-        int num = Math.abs(random.nextInt(maxValue));
-        le.execute(new NumberLoader(num, nodeSize));
-        ingested.add(num);
-      }
-      int uniqueNum = ingested.size();
+    try (FluoClient fluoClient = FluoFactory.newClient(config)) {
 
-      log.info("Ingested "+uniqueNum+" unique numbers with a nodeSize of "+nodeSize+" bits");
+      int uniqueNum;
+
+      try (LoaderExecutor le = client.newLoaderExecutor()) {
+        Random random = new Random();
+        Set<Integer> ingested = new HashSet<>();
+        for (int i = 0; i < ingestNum; i++) {
+          int num = Math.abs(random.nextInt(maxValue));
+          le.execute(new NumberLoader(num, nodeSize));
+          ingested.add(num);
+        }
+
+        uniqueNum = ingested.size();
+        log.info(
+            "Ingested " + uniqueNum + " unique numbers with a nodeSize of " + nodeSize + " bits");
+      }
 
       miniFluo.waitForObservers();
 
       try (TypedSnapshot tsnap = TYPEL.wrap(client.newSnapshot())) {
-        Integer result = tsnap.get().row(Node.generateRootId(nodeSize)).col(COUNT_SEEN_COL).toInteger();
+        Integer result =
+            tsnap.get().row(Node.generateRootId(nodeSize)).col(COUNT_SEEN_COL).toInteger();
         if (result == null) {
           log.error("Could not find root node");
           printSnapshot();
         }
         if (!result.equals(uniqueNum)) {
-          log.error("Count (" + result + ") at root node does not match expected (" + uniqueNum + "):");
+          log.error(
+              "Count (" + result + ") at root node does not match expected (" + uniqueNum + "):");
           printSnapshot();
         }
         Assert.assertEquals(uniqueNum, result.intValue());
