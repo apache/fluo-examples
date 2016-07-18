@@ -1,17 +1,15 @@
 /*
  * Copyright 2014 Fluo authors (see AUTHORS)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
  */
 
 package io.fluo.stress.trie;
@@ -19,10 +17,9 @@ package io.fluo.stress.trie;
 import java.io.File;
 import java.io.IOException;
 
-import io.fluo.api.client.Loader;
-import io.fluo.api.config.FluoConfiguration;
-import io.fluo.mapreduce.FluoOutputFormat;
-import org.apache.commons.configuration.ConfigurationConverter;
+import org.apache.fluo.api.client.Loader;
+import org.apache.fluo.api.config.FluoConfiguration;
+import org.apache.fluo.mapreduce.FluoOutputFormat;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.LongWritable;
@@ -39,10 +36,11 @@ public class Load extends Configured implements Tool {
 
   private static final Logger log = LoggerFactory.getLogger(Load.class);
 
-  public static class LoadMapper extends Mapper<LongWritable,NullWritable,Loader,NullWritable> {
+  public static class LoadMapper extends Mapper<LongWritable, NullWritable, Loader, NullWritable> {
 
     @Override
-    protected void map(LongWritable key, NullWritable val, Context context) throws IOException, InterruptedException {
+    protected void map(LongWritable key, NullWritable val, Context context)
+        throws IOException, InterruptedException {
       context.write(new NumberLoader(key.get()), val);
     }
   }
@@ -61,7 +59,7 @@ public class Load extends Configured implements Tool {
     Job job = Job.getInstance(getConf());
 
     job.setJobName(Load.class.getName());
-    
+
     job.setJarByClass(Load.class);
 
     job.setInputFormatClass(SequenceFileInputFormat.class);
@@ -72,7 +70,7 @@ public class Load extends Configured implements Tool {
     job.setNumReduceTasks(0);
 
     job.setOutputFormatClass(FluoOutputFormat.class);
-    FluoOutputFormat.configure(job, ConfigurationConverter.getProperties(props));
+    FluoOutputFormat.configure(job, props);
 
     job.getConfiguration().setBoolean("mapreduce.map.speculative", false);
 

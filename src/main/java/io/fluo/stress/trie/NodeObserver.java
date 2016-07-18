@@ -15,12 +15,12 @@ package io.fluo.stress.trie;
 
 import java.util.Map;
 
-import io.fluo.api.client.TransactionBase;
-import io.fluo.api.data.Bytes;
-import io.fluo.api.data.Column;
-import io.fluo.api.observer.AbstractObserver;
-import io.fluo.api.types.TypedSnapshotBase.Value;
-import io.fluo.api.types.TypedTransactionBase;
+import org.apache.fluo.api.client.TransactionBase;
+import org.apache.fluo.api.data.Bytes;
+import org.apache.fluo.api.data.Column;
+import org.apache.fluo.api.observer.AbstractObserver;
+import org.apache.fluo.recipes.core.types.TypedSnapshotBase.Value;
+import org.apache.fluo.recipes.core.types.TypedTransactionBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
