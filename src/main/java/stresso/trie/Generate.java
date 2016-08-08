@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Fluo authors (see AUTHORS)
+ * Copyright 2014 Stresso authors (see AUTHORS)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.fluo.stress.trie;
+package stresso.trie;
 
 import java.io.DataInput;
 import java.io.DataOutput;
@@ -22,7 +22,6 @@ import java.io.IOException;
 import java.util.Random;
 
 import com.google.common.base.Preconditions;
-import org.apache.fluo.api.config.FluoConfiguration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.LongWritable;
@@ -44,9 +43,9 @@ public class Generate extends Configured implements Tool {
 
   private static final Logger log = LoggerFactory.getLogger(Generate.class);
 
-  public static final String TRIE_GEN_NUM_PER_MAPPER_PROP = FluoConfiguration.FLUO_PREFIX + ".stress.trie.numPerMapper";
-  public static final String TRIE_GEN_NUM_MAPPERS_PROP = FluoConfiguration.FLUO_PREFIX + ".stress.trie.numMappers";
-  public static final String TRIE_GEN_MAX_PROP = FluoConfiguration.FLUO_PREFIX + ".stress.trie.max";
+  public static final String TRIE_GEN_NUM_PER_MAPPER_PROP = "stresso.trie.numPerMapper";
+  public static final String TRIE_GEN_NUM_MAPPERS_PROP = "stresso.trie.numMappers";
+  public static final String TRIE_GEN_MAX_PROP = "stresso.trie.max";
 
   public static class RandomSplit implements InputSplit {
 

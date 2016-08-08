@@ -3,5 +3,4 @@
 BIN_DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 . $BIN_DIR/load-env.sh
 
-yarn jar $STRESS_JAR io.fluo.stress.trie.Split $FLUO_PROPS $@
-
+$FLUO_CMD exec $FLUO_APP_NAME stresso.trie.Split $FLUO_PROPS $@

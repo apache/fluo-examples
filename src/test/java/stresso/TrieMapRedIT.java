@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Fluo authors (see AUTHORS)
+ * Copyright 2014 Stresso authors (see AUTHORS)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -11,7 +11,7 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package io.fluo.stress;
+package stresso;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -19,13 +19,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import io.fluo.stress.trie.Constants;
-import io.fluo.stress.trie.Generate;
-import io.fluo.stress.trie.Init;
-import io.fluo.stress.trie.Load;
-import io.fluo.stress.trie.NodeObserver;
-import io.fluo.stress.trie.Print;
-import io.fluo.stress.trie.Unique;
 import org.apache.commons.io.FileUtils;
 import org.apache.fluo.api.config.ObserverConfiguration;
 import org.apache.fluo.api.config.SimpleConfiguration;
@@ -33,6 +26,13 @@ import org.apache.fluo.integration.ITBaseMini;
 import org.apache.hadoop.util.ToolRunner;
 import org.junit.Assert;
 import org.junit.Test;
+import stresso.trie.Constants;
+import stresso.trie.Generate;
+import stresso.trie.Init;
+import stresso.trie.Load;
+import stresso.trie.NodeObserver;
+import stresso.trie.Print;
+import stresso.trie.Unique;
 
 /**
  * Tests Trie Stress Test using MapReduce Ingest

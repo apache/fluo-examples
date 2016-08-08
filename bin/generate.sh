@@ -3,6 +3,4 @@
 BIN_DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 . $BIN_DIR/load-env.sh
 
-LJO="-libjars $LIB_JARS"
-yarn jar $STRESS_JAR io.fluo.stress.trie.Generate $LJO $@
-
+yarn jar $STRESSO_JAR stresso.trie.Generate $@

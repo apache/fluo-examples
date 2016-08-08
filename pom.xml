@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Copyright 2014 Fluo authors (see AUTHORS)
+  Copyright 2014 Stresso authors (see AUTHORS)
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -17,20 +17,14 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>io.fluo</groupId>
-  <artifactId>fluo-stress</artifactId>
+  <groupId>io.github.astralway</groupId>
+  <artifactId>stresso</artifactId>
   <version>0.0.1-SNAPSHOT</version>
   <packaging>jar</packaging>
 
-  <name>Fluo Stress</name>
-  <description>
-    This repo contains the Fluo stress tests.  Stress tests are different than integration tests in
-    that they are designed to run on a cluster while integration tests only run on MiniFluo in a 
-    local environment.  This repo produces the jar needed to run a stress test on a cluster.
-    Currently, this repo only has one stress test (the Trie test) but other tests could be added 
-    in the future.  
-  </description>
-  <url>https://github.com/fluo-io/fluo-stress</url>
+  <name>Stresso</name>
+  <description>This repo contains an example application designed to stress Apache Fluo</description>
+  <url>https://github.com/astralway/stresso</url>
 
   <properties>
     <accumulo.version>1.6.4</accumulo.version>
@@ -91,8 +85,8 @@
         <artifactId>maven-failsafe-plugin</artifactId>
         <configuration>
           <systemPropertyVariables>
-            <io.fluo.it.instance.name>it-instance-maven</io.fluo.it.instance.name>
-            <io.fluo.it.instance.clear>false</io.fluo.it.instance.clear>
+            <fluo.it.instance.name>it-instance-maven</fluo.it.instance.name>
+            <fluo.it.instance.clear>false</fluo.it.instance.clear>
           </systemPropertyVariables>
         </configuration>
         <executions>
@@ -102,6 +96,33 @@
               <goal>integration-test</goal>
               <goal>verify</goal>
             </goals>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-shade-plugin</artifactId>
+        <executions>
+          <execution>
+            <goals>
+              <goal>shade</goal>
+            </goals>
+            <phase>package</phase>
+            <configuration>
+              <shadedArtifactAttached>true</shadedArtifactAttached>
+              <shadedClassifierName>shaded</shadedClassifierName>
+              <filters>
+                <filter>
+                  <artifact>*:*</artifact>
+                  <excludes>
+                    <exclude>META-INF/*.SF</exclude>
+                    <exclude>META-INF/*.DSA</exclude>
+                    <exclude>META-INF/*.RSA</exclude>
+                  </excludes>
+                </filter>
+              </filters>
+            </configuration>
           </execution>
         </executions>
       </plugin>
@@ -192,7 +213,6 @@
       <version>${fluo.version}</version>
       <scope>test</scope>
     </dependency>
-
     <dependency>
       <groupId>commons-io</groupId>
       <artifactId>commons-io</artifactId>

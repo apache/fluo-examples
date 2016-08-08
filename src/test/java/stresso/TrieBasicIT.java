@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Fluo authors (see AUTHORS)
+ * Copyright 2014 Stresso authors (see AUTHORS)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -11,7 +11,7 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package io.fluo.stress;
+package stresso;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -19,10 +19,6 @@ import java.util.List;
 import java.util.Random;
 import java.util.Set;
 
-import io.fluo.stress.trie.Constants;
-import io.fluo.stress.trie.Node;
-import io.fluo.stress.trie.NodeObserver;
-import io.fluo.stress.trie.NumberLoader;
 import org.apache.fluo.api.client.FluoClient;
 import org.apache.fluo.api.client.FluoFactory;
 import org.apache.fluo.api.client.LoaderExecutor;
@@ -34,9 +30,13 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import stresso.trie.Constants;
+import stresso.trie.Node;
+import stresso.trie.NodeObserver;
+import stresso.trie.NumberLoader;
 
-import static io.fluo.stress.trie.Constants.COUNT_SEEN_COL;
-import static io.fluo.stress.trie.Constants.TYPEL;
+import static stresso.trie.Constants.COUNT_SEEN_COL;
+import static stresso.trie.Constants.TYPEL;
 
 /**
  * Tests Trie Stress Test using Basic Loader
