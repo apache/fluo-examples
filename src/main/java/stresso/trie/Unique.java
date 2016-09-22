@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Fluo authors (see AUTHORS)
+ * Copyright 2014 Stresso authors (see AUTHORS)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.fluo.stress.trie;
+package stresso.trie;
 
 import java.io.IOException;
 import java.util.Iterator;
@@ -45,7 +45,7 @@ public class Unique extends Configured implements Tool {
   public static enum Stats {
     UNIQUE;
   }
-  
+
   public static class UniqueReducer extends MapReduceBase implements Reducer<LongWritable,NullWritable,LongWritable,NullWritable> {
     @Override
     public void reduce(LongWritable key, Iterator<NullWritable> values, OutputCollector<LongWritable,NullWritable> output, Reporter reporter) throws IOException {
@@ -83,17 +83,17 @@ public class Unique extends Configured implements Tool {
     job.setMapOutputValueClass(NullWritable.class);
 
     job.setReducerClass(UniqueReducer.class);
-    
+
     job.setOutputFormat(NullOutputFormat.class);
-    
+
     RunningJob runningJob = JobClient.runJob(job);
     runningJob.waitForCompletion();
     numUnique = (int) runningJob.getCounters().getCounter(Stats.UNIQUE);
-    
+
     log.debug("numUnique : "+numUnique);
-    
+
     return runningJob.isSuccessful() ? 0 : -1;
-    
+
   }
 
   public static void main(String[] args) throws Exception {

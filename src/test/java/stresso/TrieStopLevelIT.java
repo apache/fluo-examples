@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Fluo authors (see AUTHORS)
+ * Copyright 2014 Stresso authors (see AUTHORS)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -12,20 +12,20 @@
  * the License.
  */
 
-package io.fluo.stress;
+package stresso;
 
 import java.util.Collections;
 import java.util.List;
 
-import io.fluo.stress.trie.Constants;
-import io.fluo.stress.trie.Node;
-import io.fluo.stress.trie.NodeObserver;
 import org.apache.fluo.api.client.Snapshot;
 import org.apache.fluo.api.config.ObserverConfiguration;
 import org.apache.fluo.api.config.SimpleConfiguration;
 import org.apache.fluo.api.data.Bytes;
 import org.junit.Assert;
 import org.junit.Test;
+import stresso.trie.Constants;
+import stresso.trie.Node;
+import stresso.trie.NodeObserver;
 
 public class TrieStopLevelIT extends TrieMapRedIT {
 

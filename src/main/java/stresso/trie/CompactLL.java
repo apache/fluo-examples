@@ -1,4 +1,4 @@
-package io.fluo.stress.trie;
+package stresso.trie;
 
 import java.io.File;
 

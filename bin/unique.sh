@@ -8,7 +8,4 @@ if [ "$#" -lt 2 ]; then
     exit 1
 fi
 
-
-LJO="-libjars $LIB_JARS"
-yarn jar $STRESS_JAR io.fluo.stress.trie.Unique -Dmapreduce.job.reduces=$1 $LJO ${@:2}
-
+yarn jar $STRESSO_JAR stresso.trie.Unique -Dmapreduce.job.reduces=$1 ${@:2}
