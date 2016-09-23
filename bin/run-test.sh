@@ -22,7 +22,7 @@ else
 fi
 
 # build stresso
-(cd $BIN_DIR/..;mvn package -DskipTests)
+(cd $BIN_DIR/..;mvn package -Dfluo.version=$FLUO_VERSION -Daccumulo.version=$ACCUMULO_VERSION -DskipTests)
 
 if [[ $(accumulo version) == *1.6* ]]; then
   # build stress balancer
@@ -38,8 +38,7 @@ if [ ! -d $FLUO_APP_LIB ]; then
   exit 1
 fi
 cp $STRESSO_JAR $FLUO_APP_LIB
-fluo_recipes_version=1.0.0-incubating-SNAPSHOT
-mvn dependency:get -Dartifact=org.apache.fluo:fluo-recipes-core:$fluo_recipes_version:jar -Ddest=$FLUO_APP_LIB
+mvn dependency:copy-dependencies  -DincludeArtifactIds=fluo-recipes-core -DoutputDirectory=$FLUO_APP_LIB
 
 # determine a good stop level
 if (("$MAX" <= $((10**9)))); then
