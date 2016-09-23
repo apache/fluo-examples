@@ -20,7 +20,7 @@ import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.fluo.api.config.ObserverConfiguration;
+import org.apache.fluo.api.config.ObserverSpecification;
 import org.apache.fluo.api.config.SimpleConfiguration;
 import org.apache.fluo.integration.ITBaseMini;
 import org.apache.hadoop.util.ToolRunner;
@@ -40,8 +40,8 @@ import stresso.trie.Unique;
 public class TrieMapRedIT extends ITBaseMini {
 
   @Override
-  protected List<ObserverConfiguration> getObservers() {
-    return Collections.singletonList(new ObserverConfiguration(NodeObserver.class.getName()));
+  protected List<ObserverSpecification> getObservers() {
+    return Collections.singletonList(new ObserverSpecification(NodeObserver.class.getName()));
   }
 
   @Override

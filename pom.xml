@@ -27,7 +27,7 @@
   <url>https://github.com/astralway/stresso</url>
 
   <properties>
-    <accumulo.version>1.6.4</accumulo.version>
+    <accumulo.version>1.7.2</accumulo.version>
     <hadoop.version>2.6.3</hadoop.version>
     <fluo.version>1.0.0-incubating-SNAPSHOT</fluo.version>
     <fluo-recipes.version>1.0.0-incubating-SNAPSHOT</fluo-recipes.version>

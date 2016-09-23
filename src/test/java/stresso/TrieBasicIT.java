@@ -22,7 +22,7 @@ import java.util.Set;
 import org.apache.fluo.api.client.FluoClient;
 import org.apache.fluo.api.client.FluoFactory;
 import org.apache.fluo.api.client.LoaderExecutor;
-import org.apache.fluo.api.config.ObserverConfiguration;
+import org.apache.fluo.api.config.ObserverSpecification;
 import org.apache.fluo.api.config.SimpleConfiguration;
 import org.apache.fluo.integration.ITBaseMini;
 import org.apache.fluo.recipes.core.types.TypedSnapshot;
@@ -46,8 +46,8 @@ public class TrieBasicIT extends ITBaseMini {
   private static final Logger log = LoggerFactory.getLogger(TrieBasicIT.class);
 
   @Override
-  protected List<ObserverConfiguration> getObservers() {
-    return Collections.singletonList(new ObserverConfiguration(NodeObserver.class.getName()));
+  protected List<ObserverSpecification> getObservers() {
+    return Collections.singletonList(new ObserverSpecification(NodeObserver.class.getName()));
   }
 
   @Override
