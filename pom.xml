@@ -130,6 +130,13 @@
     </plugins>
   </build>
 
+  <!--
+       The provided scope is used for dependencies that should not end up in
+       the shaded jar.  The shaded jar is used to run map reduce jobs via the yarn
+       command.  The yarn command will provided hadoop dependencies, so they are not
+       needed in the shaded jar.
+  -->
+
   <dependencies>
     <dependency>
       <groupId>org.apache.fluo</groupId>
@@ -160,31 +167,37 @@
       <groupId>org.apache.hadoop</groupId>
       <artifactId>hadoop-client</artifactId>
       <version>${hadoop.version}</version>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
       <version>${slf4j.version}</version>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-log4j12</artifactId>
       <version>${slf4j.version}</version>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>com.google.guava</groupId>
       <artifactId>guava</artifactId>
       <version>13.0.1</version>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>commons-configuration</groupId>
       <artifactId>commons-configuration</artifactId>
       <version>1.10</version>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>commons-codec</groupId>
       <artifactId>commons-codec</artifactId>
       <version>1.10</version>
+      <scope>provided</scope>
     </dependency>
 
     <!-- Test Dependencies -->
