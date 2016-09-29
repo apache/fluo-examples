@@ -81,6 +81,7 @@ cluster.  These scripts make the following assumpitions.
  * `FLUO_HOME` environment variable is set.  If not set, then set it in `conf/env.sh`.
  * Hadoop `yarn` command is on path.
  * Hadoop `hadoop` command is on path.
+ * Accumulo `accumulo` command is on path.
 
 Before running any of the scipts, copy [conf/env.sh.example](/conf/env.sh.example) 
 to `conf/env.sh`, then inspect and modify the file.
