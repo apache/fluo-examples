@@ -30,7 +30,7 @@
     <accumulo.version>1.7.2</accumulo.version>
     <hadoop.version>2.6.3</hadoop.version>
     <fluo.version>1.0.0-incubating</fluo.version>
-    <fluo-recipes.version>1.0.0-incubating-SNAPSHOT</fluo-recipes.version>
+    <fluo-recipes.version>1.0.0-incubating</fluo-recipes.version>
     <slf4j.version>1.7.12</slf4j.version>
   </properties>
 
