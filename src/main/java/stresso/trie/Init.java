@@ -23,6 +23,7 @@ import java.io.OutputStream;
 import java.util.Collection;
 
 import org.apache.accumulo.core.client.Connector;
+import org.apache.accumulo.core.client.admin.CompactionConfig;
 import org.apache.accumulo.core.client.mapreduce.AccumuloFileOutputFormat;
 import org.apache.accumulo.core.client.mapreduce.lib.partition.RangePartitioner;
 import org.apache.accumulo.core.data.Key;
@@ -213,6 +214,9 @@ public class Init extends Configured implements Tool {
       Path failPath = new Path(tmp, "failures");
       fs.mkdirs(failPath);
       conn.tableOperations().importDirectory(props.getAccumuloTable(), outPath.toString(), failPath.toString(), false);
+
+      //Compacting files makes them local to each tablet and generates files using the tables settings.
+      conn.tableOperations().compact(props.getAccumuloTable(), new CompactionConfig().setWait(true));
     }
     return success ? 0 : 1;
   }

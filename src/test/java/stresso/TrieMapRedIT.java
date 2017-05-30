@@ -16,15 +16,16 @@ package stresso;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.fluo.api.client.FluoFactory;
+import org.apache.fluo.api.config.FluoConfiguration;
 import org.apache.fluo.api.config.ObserverSpecification;
 import org.apache.fluo.api.config.SimpleConfiguration;
-import org.apache.fluo.integration.ITBaseMini;
+import org.apache.fluo.api.mini.MiniFluo;
 import org.apache.hadoop.util.ToolRunner;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import stresso.trie.Constants;
 import stresso.trie.Generate;
@@ -37,17 +38,15 @@ import stresso.trie.Unique;
 /**
  * Tests Trie Stress Test using MapReduce Ingest
  */
-public class TrieMapRedIT extends ITBaseMini {
+public class TrieMapRedIT extends ITBase {
 
   @Override
-  protected List<ObserverSpecification> getObservers() {
-    return Collections.singletonList(new ObserverSpecification(NodeObserver.class.getName()));
-  }
+  protected void preInit(FluoConfiguration conf) {
+    conf.addObserver(new ObserverSpecification(NodeObserver.class.getName()));
 
-  @Override
-  protected void setAppConfig(SimpleConfiguration config) {
-    config.setProperty(Constants.STOP_LEVEL_PROP, 0);
-    config.setProperty(Constants.NODE_SIZE_PROP, 8);
+    SimpleConfiguration appCfg = conf.getAppConfiguration();
+    appCfg.setProperty(Constants.STOP_LEVEL_PROP, 0);
+    appCfg.setProperty(Constants.NODE_SIZE_PROP, 8);
   }
 
   static void generate(int numMappers, int numPerMapper, int max, File out1) throws Exception {
@@ -64,12 +63,9 @@ public class TrieMapRedIT extends ITBaseMini {
   }
 
   static void init(int nodeSize, File fluoPropsFile, File input, File tmp) throws Exception {
-    int ret =
-        ToolRunner
-            .run(new Init(),
-                new String[] {"-D", "mapred.job.tracker=local", "-D", "fs.defaultFS=file:///",
-                    fluoPropsFile.getAbsolutePath(), input.toURI().toString(),
-                    tmp.toURI().toString()});
+    int ret = ToolRunner.run(new Init(),
+        new String[] {"-D", "mapred.job.tracker=local", "-D", "fs.defaultFS=file:///",
+            fluoPropsFile.getAbsolutePath(), input.toURI().toString(), tmp.toURI().toString()});
     Assert.assertEquals(0, ret);
   }
 

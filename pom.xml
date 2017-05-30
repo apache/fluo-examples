@@ -215,16 +215,14 @@
     </dependency>
     <dependency>
       <groupId>org.apache.fluo</groupId>
-      <artifactId>fluo-integration</artifactId>
+      <artifactId>fluo-mini</artifactId>
       <version>${fluo.version}</version>
-      <type>test-jar</type>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.fluo</groupId>
-      <artifactId>fluo-mini</artifactId>
-      <version>${fluo.version}</version>
-      <scope>test</scope>
+      <artifactId>fluo-recipes-test</artifactId>
+      <version>${fluo-recipes.version}</version>
     </dependency>
     <dependency>
       <groupId>commons-io</groupId>

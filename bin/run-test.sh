@@ -93,7 +93,11 @@ for i in $(seq 1 $ITERATIONS); do
   $BIN_DIR/load.sh /stresso/$i >$LOG_DIR/load_$i.out 2>$LOG_DIR/load_$i.err
   # TODO could reload the same dataset sometimes, maybe when i%5 == 0 or something
   $BIN_DIR/compact-ll.sh $MAX $COMPACT_CUTOFF >$LOG_DIR/compact-ll_$i.out 2>$LOG_DIR/compact-ll_$i.err
-  sleep $SLEEP
+  if ! ((i % WAIT_PERIOD)); then
+    $FLUO_CMD wait $FLUO_APP_NAME >$LOG_DIR/wait_$i.out 2>$LOG_DIR/wait_$i.err
+  else
+    sleep $SLEEP
+  fi
 done
 
 # print unique counts

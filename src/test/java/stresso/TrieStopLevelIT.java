@@ -14,10 +14,8 @@
 
 package stresso;
 
-import java.util.Collections;
-import java.util.List;
-
 import org.apache.fluo.api.client.Snapshot;
+import org.apache.fluo.api.config.FluoConfiguration;
 import org.apache.fluo.api.config.ObserverSpecification;
 import org.apache.fluo.api.config.SimpleConfiguration;
 import org.apache.fluo.api.data.Bytes;
@@ -30,14 +28,12 @@ import stresso.trie.NodeObserver;
 public class TrieStopLevelIT extends TrieMapRedIT {
 
   @Override
-  protected List<ObserverSpecification> getObservers() {
-    return Collections.singletonList(new ObserverSpecification(NodeObserver.class.getName()));
-  }
+  protected void preInit(FluoConfiguration conf) {
+    conf.addObserver(new ObserverSpecification(NodeObserver.class.getName()));
 
-  @Override
-  protected void setAppConfig(SimpleConfiguration config) {
-    config.setProperty(Constants.STOP_LEVEL_PROP, 7);
-    config.setProperty(Constants.NODE_SIZE_PROP, 8);
+    SimpleConfiguration appCfg = conf.getAppConfiguration();
+    appCfg.setProperty(Constants.STOP_LEVEL_PROP, 7);
+    appCfg.setProperty(Constants.NODE_SIZE_PROP, 8);
   }
 
   @Test

@@ -13,19 +13,17 @@
  */
 package stresso;
 
-import java.util.Collections;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Random;
 import java.util.Set;
 
 import org.apache.fluo.api.client.FluoClient;
 import org.apache.fluo.api.client.FluoFactory;
 import org.apache.fluo.api.client.LoaderExecutor;
+import org.apache.fluo.api.config.FluoConfiguration;
 import org.apache.fluo.api.config.ObserverSpecification;
-import org.apache.fluo.api.config.SimpleConfiguration;
-import org.apache.fluo.integration.ITBaseMini;
 import org.apache.fluo.recipes.core.types.TypedSnapshot;
+import org.apache.fluo.recipes.test.FluoITHelper;
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -41,18 +39,14 @@ import static stresso.trie.Constants.TYPEL;
 /**
  * Tests Trie Stress Test using Basic Loader
  */
-public class TrieBasicIT extends ITBaseMini {
+public class TrieBasicIT extends ITBase {
 
   private static final Logger log = LoggerFactory.getLogger(TrieBasicIT.class);
 
   @Override
-  protected List<ObserverSpecification> getObservers() {
-    return Collections.singletonList(new ObserverSpecification(NodeObserver.class.getName()));
-  }
-
-  @Override
-  protected void setAppConfig(SimpleConfiguration config) {
-    config.setProperty(Constants.STOP_LEVEL_PROP, 0);
+  protected void preInit(FluoConfiguration conf) {
+    conf.addObserver(new ObserverSpecification(NodeObserver.class.getName()));
+    conf.getAppConfiguration().setProperty(Constants.STOP_LEVEL_PROP, 0);
   }
 
   @Test
@@ -112,12 +106,12 @@ public class TrieBasicIT extends ITBaseMini {
             tsnap.get().row(Node.generateRootId(nodeSize)).col(COUNT_SEEN_COL).toInteger();
         if (result == null) {
           log.error("Could not find root node");
-          printSnapshot();
+          FluoITHelper.printFluoTable(client);
         }
         if (!result.equals(uniqueNum)) {
           log.error(
               "Count (" + result + ") at root node does not match expected (" + uniqueNum + "):");
-          printSnapshot();
+          FluoITHelper.printFluoTable(client);
         }
         Assert.assertEquals(uniqueNum, result.intValue());
       }
