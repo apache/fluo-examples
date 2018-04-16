@@ -1,0 +1,201 @@
+#! /usr/bin/env bash
+
+# Copyright 2015 Webindex authors (see AUTHORS)
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+BIN_DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+export WI_HOME=$( cd "$( dirname "$BIN_DIR" )" && pwd )
+export WI_VERSION=0.0.1-SNAPSHOT
+
+if [ ! -f $WI_HOME/conf/webindex-env.sh ]; then
+  echo "webindex-env.sh must exist in $WI_HOME/conf"
+  exit 1
+fi
+. "$WI_HOME/conf/webindex-env.sh"
+
+mkdir -p "$WI_HOME/logs"
+
+export WI_CONFIG=$WI_HOME/conf/webindex.yml
+if [ ! -f "$WI_CONFIG" ]; then
+  echo "webindex.yml must exist in $WI_HOME/conf"
+  exit 1
+fi
+
+log4j_config=$WI_HOME/conf/log4j.properties
+if [ ! -f "$log4j_config" ]; then
+  echo "logj4.properties must exist in $WI_HOME/conf"
+  exit 1
+fi
+
+conn_props=$FLUO_HOME/conf/fluo-conn.properties
+if [ ! -f "$conn_props" ]; then
+  echo "fluo-conn.properties must exist in $FLUO_HOME/conf"
+  exit 1
+fi
+
+function get_prop {
+  echo "`grep $1 $WI_CONFIG | cut -d ' ' -f 2`"
+}
+
+COMMAND_LOGFILE=$WI_HOME/logs/$1_`date +%s`.log
+DATA_DIR=$WI_HOME/data
+mkdir -p $DATA_DIR
+
+case "$1" in
+dev)
+  pkill -9 -f webindex-dev-server
+  cd $WI_HOME
+  dev_args="${@:2}"
+  mvn -q compile -P webindex-dev-server -Dlog4j.configuration=file:$log4j_config -Dexec.args="$dev_args"
+  ;;
+getpaths)
+  mkdir -p $DATA_DIR
+  PATHS_FILE="$2".wat.paths
+  if [ ! -f $DATA_DIR/$PATHS_FILE ]; then
+    rm -f $DATA_DIR/wat.paths.gz
+    PATHS_URL=https://commoncrawl.s3.amazonaws.com/crawl-data/CC-MAIN-$2/wat.paths.gz
+    if [[ `wget -S --spider $PATHS_URL 2>&1 | grep 'HTTP/1.1 200 OK'` ]]; then
+      wget -P $DATA_DIR $PATHS_URL
+      gzip -d $DATA_DIR/wat.paths.gz
+      mv $DATA_DIR/wat.paths $DATA_DIR/$PATHS_FILE
+      echo "Downloaded paths file to $DATA_DIR/$PATHS_FILE"
+    else
+      echo "Crawl paths file for date $2 does not exist at $PATHS_URL"
+      exit 1
+    fi
+  else
+    echo "Crawl paths file already exists at $DATA_DIR/$PATHS_FILE"
+  fi
+  ;;
+copy)
+  if [ "$#" -lt 4 -o "$#" -gt 5 ]; then
+    echo "Usage: webindex copy <DATE> <RANGE> <DEST> [-fg]"
+    exit 1
+  fi
+  . $BIN_DIR/impl/base.sh
+  COMMAND="$SPARK_SUBMIT --class webindex.data.Copy $COMMON_SPARK_OPTS \
+    $WI_DATA_DEP_JAR $DATA_DIR/"$2".wat.paths $3 $4"
+  if [ "$5" != "-fg" ]; then
+    nohup ${COMMAND} &> $COMMAND_LOGFILE &
+    echo "Started copy.  Logs are being output to $COMMAND_LOGFILE"
+  else
+    ${COMMAND}
+  fi
+  ;;
+init)
+  if [ "$#" -lt 1 -o "$#" -gt 3 ]; then
+    echo "Usage: webindex init <SRC> [-fg]"
+    exit 1
+  fi
+  . $BIN_DIR/impl/base.sh
+  COMMAND="$BIN_DIR/impl/init.sh $2"
+  if [ "$2" == "-fg" ]; then
+    COMMAND="$BIN_DIR/impl/init.sh"
+  fi
+  if [ "$2" != "-fg" -a "$3" != "-fg" ]; then
+    nohup ${COMMAND} &> $COMMAND_LOGFILE &
+    echo "Started init.  Logs are being output to $COMMAND_LOGFILE"
+  else
+    ${COMMAND}
+  fi
+  ;;
+load-hdfs)
+  if [ "$#" -lt 2 -o "$#" -gt 3 ]; then
+    echo "Usage: webindex load-hdfs <SRC> [-fg]"
+    exit 1
+  fi
+  . $BIN_DIR/impl/base.sh
+  COMMAND="$SPARK_SUBMIT --class webindex.data.LoadHdfs $COMMON_SPARK_OPTS \
+    --files $conn_props $WI_DATA_DEP_JAR $2"
+  if [ "$3" != "-fg" ]; then
+    nohup ${COMMAND} &> $COMMAND_LOGFILE &
+    echo "Started load-hdfs.  Logs are being output to $COMMAND_LOGFILE"
+  else
+    ${COMMAND}
+  fi
+	;;
+load-s3)
+  if [ "$#" -lt 3 -o "$#" -gt 4 ]; then
+    echo "Usage: webindex load-s3 <DATE> <RANGE> [-fg]"
+    exit 1
+  fi
+  . $BIN_DIR/impl/base.sh
+  COMMAND="$SPARK_SUBMIT --class webindex.data.LoadS3 $COMMON_SPARK_OPTS \
+    --files $conn_props $WI_DATA_DEP_JAR $DATA_DIR/"$2".wat.paths $3"
+  if [ "$4" != "-fg" ]; then
+    nohup ${COMMAND} &> $COMMAND_LOGFILE &
+    echo "Started load-s3.  Logs are being output to $COMMAND_LOGFILE"
+  else
+    ${COMMAND}
+  fi
+  ;;
+test-parser)
+  if [ "$#" -lt 3 -o "$#" -gt 4 ]; then
+    echo "Usage: webindex test-parser <DATE> <RANGE> [-fg]"
+    exit 1
+  fi
+  . $BIN_DIR/impl/base.sh
+  COMMAND="$SPARK_SUBMIT --class webindex.data.TestParser $COMMON_SPARK_OPTS \
+    $WI_DATA_DEP_JAR $DATA_DIR/"$2".wat.paths $3"
+  if [ "$4" != "-fg" ]; then
+    nohup ${COMMAND} &> $COMMAND_LOGFILE &
+    echo "Started data-verify.  Logs are being output to $COMMAND_LOGFILE"
+  else
+    ${COMMAND}
+  fi
+  ;;
+ui)
+  pkill -9 -f webindex-web-server
+  cd $WI_HOME
+  COMMAND="mvn -q compile -P webindex-web-server -Dlog4j.configuration=file:$log4j_config"
+  if [ "$2" != "-fg" ]; then
+    nohup ${COMMAND} &> $COMMAND_LOGFILE &
+    echo "Started UI.  Logs are being output to $COMMAND_LOGFILE"
+  else
+    ${COMMAND}
+  fi
+  ;;
+splits)
+  . $BIN_DIR/impl/base.sh
+  COMMAND="$SPARK_SUBMIT --class webindex.data.CalcSplits \
+    $COMMON_SPARK_OPTS \
+    --conf spark.shuffle.service.enabled=true \
+    $WI_DATA_DEP_JAR $2"
+  if [ "$2" != "-fg" ]; then
+    nohup ${COMMAND} &> $COMMAND_LOGFILE &
+    echo "Started splits calculation.  Logs are being output to $COMMAND_LOGFILE"
+  else
+    ${COMMAND}
+  fi
+  ;;
+*)
+  echo -e "Usage: webindex <command> (<argument>)\n"
+  echo -e "Possible commands:\n"
+  echo "  dev                         Runs WebIndex development server"
+  echo "  getpaths <DATE>             Retrieves paths file for given crawl <DATE> (i.e 2015-18) and stores file in the 'data/' directory"
+  echo "                              See https://commoncrawl.org/the-data/get-started/ for possible crawl dates"
+  echo "  copy <DATE> <RANGE> <DEST>  Copies CommonCrawl data files from S3 given a <DATE> and <RANGE> (i.e 0-8) into HDFS <DEST> directory"
+  echo "  init [<SRC>]                Initializes and starts the WebIndex application. Optionally, a <SRC> HDFS directory can be added to"
+  echo "                              to the command to initialize Fluo's table in Accumulo with data before starting the application"
+  echo "  load-hdfs <SRC>             Loads data from the HDFS <SRC> directory into Fluo"
+  echo "  load-s3 <DATE> <RANGE>      Loads data from S3 into Fluo.  Data is selected using a paths file <DATE> and file <RANGE> (i.e 5-7)"
+  echo "  ui                          Starts the webindex UI"
+  echo "  splits <SRC>                Calculate splits using data in HDFS <SRC> directory"
+  echo "  test-parser <DATE> <RANGE>  Tests parser on data loaded from S3.  Data is selected using a paths file <DATE> and file <RANGE> (i.e 5-7)"
+  echo " "
+  echo "NOTE: All commands except getpaths will run in background and output to a log by default.  Add -fg to end of these commands"
+  echo "to run them in the foreground."
+  echo " " 
+  exit 1
+esac
