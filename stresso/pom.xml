@@ -1,0 +1,234 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Copyright 2014 Stresso authors (see AUTHORS)
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>io.github.astralway</groupId>
+  <artifactId>stresso</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
+  <packaging>jar</packaging>
+
+  <name>Stresso</name>
+  <description>This repo contains an example application designed to stress Apache Fluo</description>
+  <url>https://github.com/astralway/stresso</url>
+
+  <properties>
+    <accumulo.version>1.7.2</accumulo.version>
+    <hadoop.version>2.6.3</hadoop.version>
+    <fluo.version>1.0.0-incubating</fluo.version>
+    <fluo-recipes.version>1.0.0-incubating</fluo-recipes.version>
+    <slf4j.version>1.7.12</slf4j.version>
+  </properties>
+
+  <profiles>
+    <profile>
+      <id>mini-accumulo</id>
+      <activation>
+        <property>
+          <name>!skipTests</name>
+        </property>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.accumulo</groupId>
+            <artifactId>accumulo-maven-plugin</artifactId>
+            <version>${accumulo.version}</version>
+            <configuration>
+              <instanceName>it-instance-maven</instanceName>
+              <rootPassword>ITSecret</rootPassword>
+            </configuration>
+            <executions>
+              <execution>
+                <id>run-plugin</id>
+                <goals>
+                  <goal>start</goal>
+                  <goal>stop</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
+
+  <build>
+    <plugins>
+      <plugin>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.1</version>
+        <configuration>
+          <source>1.8</source>
+          <target>1.8</target>
+          <optimize>true</optimize>
+          <encoding>UTF-8</encoding>
+        </configuration>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-failsafe-plugin</artifactId>
+        <configuration>
+          <systemPropertyVariables>
+            <fluo.it.instance.name>it-instance-maven</fluo.it.instance.name>
+            <fluo.it.instance.clear>false</fluo.it.instance.clear>
+          </systemPropertyVariables>
+        </configuration>
+        <executions>
+          <execution>
+            <id>run-integration-tests</id>
+            <goals>
+              <goal>integration-test</goal>
+              <goal>verify</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-shade-plugin</artifactId>
+        <executions>
+          <execution>
+            <goals>
+              <goal>shade</goal>
+            </goals>
+            <phase>package</phase>
+            <configuration>
+              <shadedArtifactAttached>true</shadedArtifactAttached>
+              <shadedClassifierName>shaded</shadedClassifierName>
+              <filters>
+                <filter>
+                  <artifact>*:*</artifact>
+                  <excludes>
+                    <exclude>META-INF/*.SF</exclude>
+                    <exclude>META-INF/*.DSA</exclude>
+                    <exclude>META-INF/*.RSA</exclude>
+                  </excludes>
+                </filter>
+              </filters>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+    </plugins>
+  </build>
+
+  <!--
+       The provided scope is used for dependencies that should not end up in
+       the shaded jar.  The shaded jar is used to run map reduce jobs via the yarn
+       command.  The yarn command will provided hadoop dependencies, so they are not
+       needed in the shaded jar.
+  -->
+
+  <dependencies>
+    <dependency>
+      <groupId>org.apache.fluo</groupId>
+      <artifactId>fluo-api</artifactId>
+      <version>${fluo.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.fluo</groupId>
+      <artifactId>fluo-core</artifactId>
+      <version>${fluo.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.fluo</groupId>
+      <artifactId>fluo-mapreduce</artifactId>
+      <version>${fluo.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.fluo</groupId>
+      <artifactId>fluo-recipes-core</artifactId>
+      <version>${fluo-recipes.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.accumulo</groupId>
+      <artifactId>accumulo-core</artifactId>
+      <version>${accumulo.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.hadoop</groupId>
+      <artifactId>hadoop-client</artifactId>
+      <version>${hadoop.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+      <version>${slf4j.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-log4j12</artifactId>
+      <version>${slf4j.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.google.guava</groupId>
+      <artifactId>guava</artifactId>
+      <version>13.0.1</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>commons-configuration</groupId>
+      <artifactId>commons-configuration</artifactId>
+      <version>1.10</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>commons-codec</groupId>
+      <artifactId>commons-codec</artifactId>
+      <version>1.10</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <!-- Test Dependencies -->
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>4.11</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.accumulo</groupId>
+      <artifactId>accumulo-minicluster</artifactId>
+      <version>${accumulo.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.fluo</groupId>
+      <artifactId>fluo-mini</artifactId>
+      <version>${fluo.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.fluo</groupId>
+      <artifactId>fluo-recipes-test</artifactId>
+      <version>${fluo-recipes.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>commons-io</groupId>
+      <artifactId>commons-io</artifactId>
+      <version>2.4</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+</project>
