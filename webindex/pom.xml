@@ -20,7 +20,7 @@
     <artifactId>fluo-parent</artifactId>
     <version>3</version>
   </parent>
-  <artifactId>fluo-webindex-parent</artifactId>
+  <artifactId>webindex-parent</artifactId>
   <version>1.0.0-SNAPSHOT</version>
   <packaging>pom</packaging>
   <name>Apache Fluo WebIndex Parent</name>
@@ -152,17 +152,17 @@
       </dependency>
       <dependency>
         <groupId>org.apache.fluo</groupId>
-        <artifactId>fluo-webindex-core</artifactId>
+        <artifactId>webindex-core</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
         <groupId>org.apache.fluo</groupId>
-        <artifactId>fluo-webindex-data</artifactId>
+        <artifactId>webindex-data</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
         <groupId>org.apache.fluo</groupId>
-        <artifactId>fluo-webindex-ui</artifactId>
+        <artifactId>webindex-ui</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>

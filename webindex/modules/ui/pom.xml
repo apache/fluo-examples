@@ -17,11 +17,11 @@
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>org.apache.fluo</groupId>
-    <artifactId>fluo-webindex-parent</artifactId>
+    <artifactId>webindex-parent</artifactId>
     <version>1.0.0-SNAPSHOT</version>
     <relativePath>../../pom.xml</relativePath>
   </parent>
-  <artifactId>fluo-webindex-ui</artifactId>
+  <artifactId>webindex-ui</artifactId>
   <name>Apache Fluo WebIndex UI</name>
   <dependencies>
     <dependency>
@@ -46,7 +46,7 @@
     </dependency>
     <dependency>
       <groupId>org.apache.fluo</groupId>
-      <artifactId>fluo-webindex-core</artifactId>
+      <artifactId>webindex-core</artifactId>
     </dependency>
     <dependency>
       <groupId>org.slf4j</groupId>
