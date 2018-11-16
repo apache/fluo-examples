@@ -48,13 +48,14 @@ public class Load extends Configured implements Tool {
   @Override
   public int run(String[] args) throws Exception {
 
-    if (args.length != 2) {
-      log.error("Usage: " + this.getClass().getSimpleName() + "<fluoProps> <input dir>");
+    if (args.length != 3) {
+      log.error("Usage: " + this.getClass().getSimpleName() + "<fluo conn props> <app name> <input dir>");
       System.exit(-1);
     }
 
     FluoConfiguration props = new FluoConfiguration(new File(args[0]));
-    Path input = new Path(args[1]);
+    props.setApplicationName(args[1]);
+    Path input = new Path(args[2]);
 
     Job job = Job.getInstance(getConf());
 
@@ -73,6 +74,7 @@ public class Load extends Configured implements Tool {
     FluoOutputFormat.configure(job, props);
 
     job.getConfiguration().setBoolean("mapreduce.map.speculative", false);
+    job.getConfiguration().set("mapreduce.job.classloader", "true");
 
     boolean success = job.waitForCompletion(true);
     return success ? 0 : 1;

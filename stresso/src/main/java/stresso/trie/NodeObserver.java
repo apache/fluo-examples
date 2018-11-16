@@ -18,21 +18,21 @@ import java.util.Map;
 import org.apache.fluo.api.client.TransactionBase;
 import org.apache.fluo.api.data.Bytes;
 import org.apache.fluo.api.data.Column;
-import org.apache.fluo.api.observer.AbstractObserver;
+import org.apache.fluo.api.observer.Observer;
 import org.apache.fluo.recipes.core.types.TypedSnapshotBase.Value;
 import org.apache.fluo.recipes.core.types.TypedTransactionBase;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Observer that looks for count:wait for nodes. If found, it increments count:seen and increments
  * count:wait of parent node in trie
  */
-public class NodeObserver extends AbstractObserver {
+public class NodeObserver implements Observer {
 
-  private static final Logger log = LoggerFactory.getLogger(NodeObserver.class);
+  private final int stopLevel;
 
-  private int stopLevel = 0;
+  public NodeObserver(int stopLevel) {
+    this.stopLevel = stopLevel;
+  }
 
   @Override
   public void process(TransactionBase tx, Bytes row, Column col) throws Exception {
@@ -50,29 +50,15 @@ public class NodeObserver extends AbstractObserver {
       ttx.mutate().row(row).col(Constants.COUNT_SEEN_COL).set(childSeen + childWait);
       ttx.mutate().row(row).col(Constants.COUNT_WAIT_COL).delete();
 
-      try {
-        Node node = new Node(row.toString());
-        if (node.getLevel() > stopLevel) {
-          Node parent = node.getParent();
-          Integer parentWait =
-              ttx.get().row(parent.getRowId()).col(Constants.COUNT_WAIT_COL).toInteger(0);
-          ttx.mutate().row(parent.getRowId()).col(Constants.COUNT_WAIT_COL)
-              .set(parentWait + childWait);
-        }
-      } catch (IllegalArgumentException e) {
-        log.error(e.getMessage());
-        e.printStackTrace();
+      Node node = new Node(row.toString());
+      if (node.getLevel() > stopLevel) {
+        Node parent = node.getParent();
+        Integer parentWait =
+            ttx.get().row(parent.getRowId()).col(Constants.COUNT_WAIT_COL).toInteger(0);
+        ttx.mutate().row(parent.getRowId()).col(Constants.COUNT_WAIT_COL)
+            .set(parentWait + childWait);
       }
+
     }
-  }
-
-  @Override
-  public void init(Context context) throws Exception {
-    stopLevel = context.getAppConfiguration().getInt(Constants.STOP_LEVEL_PROP);
-  }
-
-  @Override
-  public ObservedColumn getObservedColumn() {
-    return new ObservedColumn(Constants.COUNT_WAIT_COL, NotificationType.STRONG);
   }
 }

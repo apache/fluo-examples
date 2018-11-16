@@ -1,17 +1,15 @@
 /*
  * Copyright 2014 Stresso authors (see AUTHORS)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
  */
 
 package stresso.trie;
@@ -22,17 +20,13 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Collection;
 
-import org.apache.accumulo.core.client.Connector;
 import org.apache.accumulo.core.client.admin.CompactionConfig;
 import org.apache.accumulo.core.client.mapreduce.AccumuloFileOutputFormat;
 import org.apache.accumulo.core.client.mapreduce.lib.partition.RangePartitioner;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Value;
 import org.apache.commons.codec.binary.Base64;
-import org.apache.fluo.api.client.FluoClient;
-import org.apache.fluo.api.client.FluoFactory;
 import org.apache.fluo.api.config.FluoConfiguration;
-import org.apache.fluo.core.util.AccumuloUtil;
 import org.apache.fluo.mapreduce.FluoKeyValue;
 import org.apache.fluo.mapreduce.FluoKeyValueGenerator;
 import org.apache.hadoop.conf.Configured;
@@ -51,17 +45,21 @@ import org.apache.hadoop.util.ToolRunner;
 
 public class Init extends Configured implements Tool {
 
-  public static final String TRIE_STOP_LEVEL_PROP = FluoConfiguration.FLUO_PREFIX + ".stress.trie.stopLevel";
-  public static final String TRIE_NODE_SIZE_PROP = FluoConfiguration.FLUO_PREFIX + ".stress.trie.node.size";
+  public static final String TRIE_STOP_LEVEL_PROP =
+      FluoConfiguration.FLUO_PREFIX + ".stress.trie.stopLevel";
+  public static final String TRIE_NODE_SIZE_PROP =
+      FluoConfiguration.FLUO_PREFIX + ".stress.trie.node.size";
 
-  public static class UniqueReducer extends Reducer<LongWritable,NullWritable,LongWritable,NullWritable> {
+  public static class UniqueReducer
+      extends Reducer<LongWritable, NullWritable, LongWritable, NullWritable> {
     @Override
-    protected void reduce(LongWritable key, Iterable<NullWritable> values, Context context) throws IOException, InterruptedException {
+    protected void reduce(LongWritable key, Iterable<NullWritable> values, Context context)
+        throws IOException, InterruptedException {
       context.write(key, NullWritable.get());
     }
   }
 
-  public static class InitMapper extends Mapper<LongWritable,NullWritable,Text,LongWritable> {
+  public static class InitMapper extends Mapper<LongWritable, NullWritable, Text, LongWritable> {
 
     private int stopLevel;
     private int nodeSize;
@@ -76,7 +74,8 @@ public class Init extends Configured implements Tool {
     }
 
     @Override
-    protected void map(LongWritable key, NullWritable val, Context context) throws IOException, InterruptedException {
+    protected void map(LongWritable key, NullWritable val, Context context)
+        throws IOException, InterruptedException {
       Node node = new Node(key.get(), 64 / nodeSize, nodeSize);
       while (node != null) {
         outputKey.set(node.getRowId());
@@ -89,12 +88,13 @@ public class Init extends Configured implements Tool {
     }
   }
 
-  public static class InitCombiner extends Reducer<Text,LongWritable,Text,LongWritable> {
+  public static class InitCombiner extends Reducer<Text, LongWritable, Text, LongWritable> {
 
     private LongWritable outputVal = new LongWritable();
 
     @Override
-    protected void reduce(Text key, Iterable<LongWritable> values, Context context) throws IOException, InterruptedException {
+    protected void reduce(Text key, Iterable<LongWritable> values, Context context)
+        throws IOException, InterruptedException {
       long sum = 0;
       for (LongWritable l : values) {
         sum += l.get();
@@ -105,11 +105,12 @@ public class Init extends Configured implements Tool {
     }
   }
 
-  public static class InitReducer extends Reducer<Text,LongWritable,Key,Value> {
+  public static class InitReducer extends Reducer<Text, LongWritable, Key, Value> {
     private FluoKeyValueGenerator fkvg = new FluoKeyValueGenerator();
 
     @Override
-    protected void reduce(Text key, Iterable<LongWritable> values, Context context) throws IOException, InterruptedException {
+    protected void reduce(Text key, Iterable<LongWritable> values, Context context)
+        throws IOException, InterruptedException {
       long sum = 0;
       for (LongWritable l : values) {
         sum += l.get();
@@ -126,27 +127,23 @@ public class Init extends Configured implements Tool {
 
   @Override
   public int run(String[] args) throws Exception {
-    if (args.length != 3) {
-      System.err.println("Usage: " + this.getClass().getSimpleName() + " <fluoProps> <input dir> <tmp dir>");
+    if (args.length != 4) {
+      System.err.println("Usage: " + this.getClass().getSimpleName()
+          + "  <fluo conn props> <app name> <input dir> <tmp dir>");
       System.exit(-1);
     }
 
     FluoConfiguration props = new FluoConfiguration(new File(args[0]));
-    Path input = new Path(args[1]);
-    Path tmp = new Path(args[2]);
+    props.setApplicationName(args[1]);
 
-    int stopLevel;
-    int nodeSize;
-    try (FluoClient client = FluoFactory.newClient(props)) {
-      nodeSize = client.getAppConfiguration().getInt(Constants.NODE_SIZE_PROP);
-      stopLevel = client.getAppConfiguration().getInt(Constants.STOP_LEVEL_PROP);
-    }
+    Path input = new Path(args[2]);
+    Path tmp = new Path(args[3]);
 
     int ret = unique(input, new Path(tmp, "nums"));
     if (ret != 0)
       return ret;
 
-    return buildTree(nodeSize, props, tmp, stopLevel);
+    return buildTree(props, tmp);
   }
 
   private int unique(Path input, Path tmp) throws Exception {
@@ -166,12 +163,16 @@ public class Init extends Configured implements Tool {
     job.setOutputFormatClass(SequenceFileOutputFormat.class);
     SequenceFileOutputFormat.setOutputPath(job, tmp);
 
+    job.getConfiguration().set("mapreduce.job.classloader", "true");
+
     boolean success = job.waitForCompletion(true);
     return success ? 0 : 1;
 
   }
 
-  private int buildTree(int nodeSize, FluoConfiguration props, Path tmp, int stopLevel) throws Exception {
+  private int buildTree(FluoConfiguration props, Path tmp) throws Exception {
+    StressoConfig sconf = StressoConfig.retrieve(props);
+
     Job job = Job.getInstance(getConf());
 
     job.setJarByClass(Init.class);
@@ -181,8 +182,8 @@ public class Init extends Configured implements Tool {
     job.setMapOutputKeyClass(Text.class);
     job.setMapOutputValueClass(LongWritable.class);
 
-    job.getConfiguration().setInt(TRIE_NODE_SIZE_PROP, nodeSize);
-    job.getConfiguration().setInt(TRIE_STOP_LEVEL_PROP, stopLevel);
+    job.getConfiguration().setInt(TRIE_NODE_SIZE_PROP, sconf.nodeSize);
+    job.getConfiguration().setInt(TRIE_STOP_LEVEL_PROP, sconf.stopLevel);
 
     job.setInputFormatClass(SequenceFileInputFormat.class);
     SequenceFileInputFormat.addInputPath(job, new Path(tmp, "nums"));
@@ -196,11 +197,10 @@ public class Init extends Configured implements Tool {
     job.setPartitionerClass(RangePartitioner.class);
 
     FileSystem fs = FileSystem.get(job.getConfiguration());
-    Connector conn = AccumuloUtil.getConnector(props);
 
     Path splitsPath = new Path(tmp, "splits.txt");
 
-    Collection<Text> splits1 = writeSplits(props, fs, conn, splitsPath);
+    Collection<Text> splits1 = writeSplits(props, fs, splitsPath);
 
     RangePartitioner.setSplitFile(job, splitsPath.toString());
     job.setNumReduceTasks(splits1.size() + 1);
@@ -208,29 +208,43 @@ public class Init extends Configured implements Tool {
     Path outPath = new Path(tmp, "out");
     AccumuloFileOutputFormat.setOutputPath(job, outPath);
 
+    job.getConfiguration().set("mapreduce.job.classloader", "true");
+
     boolean success = job.waitForCompletion(true);
 
     if (success) {
       Path failPath = new Path(tmp, "failures");
       fs.mkdirs(failPath);
-      conn.tableOperations().importDirectory(props.getAccumuloTable(), outPath.toString(), failPath.toString(), false);
 
-      //Compacting files makes them local to each tablet and generates files using the tables settings.
-      conn.tableOperations().compact(props.getAccumuloTable(), new CompactionConfig().setWait(true));
+      AccumuloUtil.doTableOp(props, (tableOps, table) -> {
+        tableOps.importDirectory(table, outPath.toString(), failPath.toString(), false);
+
+        // Compacting files makes them local to each tablet and generates files using the tables
+        // settings.
+        tableOps.compact(table, new CompactionConfig().setWait(true));
+      });
+
+
     }
     return success ? 0 : 1;
   }
 
-  private Collection<Text> writeSplits(FluoConfiguration props, FileSystem fs, Connector conn, Path splitsPath) throws Exception {
-    Collection<Text> splits1 = conn.tableOperations().listSplits(props.getAccumuloTable());
-    OutputStream out = new BufferedOutputStream(fs.create(splitsPath));
-    for (Text split : splits1) {
-      out.write(Base64.encodeBase64(split.copyBytes()));
-      out.write('\n');
-    }
+  private Collection<Text> writeSplits(FluoConfiguration props, FileSystem fs, Path splitsPath)
+      throws Exception {
 
-    out.close();
-    return splits1;
+    return AccumuloUtil.getTableOp(props, (tableOps, table) -> {
+      Collection<Text> splits1 = tableOps.listSplits(table);
+      OutputStream out = new BufferedOutputStream(fs.create(splitsPath));
+      for (Text split : splits1) {
+        out.write(Base64.encodeBase64(split.copyBytes()));
+        out.write('\n');
+      }
+
+      out.close();
+      return splits1;
+    });
+
+
   }
 
   public static void main(String[] args) throws Exception {

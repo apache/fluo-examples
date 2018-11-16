@@ -15,10 +15,9 @@ if [ -z "$FLUO_APP_NAME" ]; then
   echo "FLUO_APP_NAME is not set!" 
   exit 1
 fi
-FLUO_APP_LIB=$FLUO_HOME/apps/$FLUO_APP_NAME/lib
-FLUO_PROPS=$FLUO_HOME/apps/$FLUO_APP_NAME/conf/fluo.properties
-if [ ! -f "$FLUO_PROPS" ] && [ -z "$SKIP_FLUO_PROPS_CHECK" ]; then
-  echo "Fluo properties file not found : $FLUO_PROPS" 
+
+if [ ! -f "$FLUO_CONN" ]; then
+  echo "Fluo conn properties file not found : $FLUO_CONN" 
   exit 1
 fi
 

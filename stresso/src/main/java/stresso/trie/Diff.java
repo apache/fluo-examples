@@ -52,27 +52,27 @@ public class Diff {
 
   public static void main(String[] args) throws Exception {
 
-    if (args.length != 1) {
-      System.err.println("Usage: " + Diff.class.getSimpleName() + " <fluo props>");
+    if (args.length != 2) {
+      System.err.println("Usage: " + Diff.class.getSimpleName() + " <fluo conn props> <app name>");
       System.exit(-1);
     }
 
     FluoConfiguration config = new FluoConfiguration(new File(args[0]));
+    config.setApplicationName(args[1]);
 
     try (FluoClient client = FluoFactory.newClient(config); Snapshot snap = client.newSnapshot()) {
 
-      int stopLevel = client.getAppConfiguration().getInt(Constants.STOP_LEVEL_PROP);
-      int nodeSize = client.getAppConfiguration().getInt(Constants.NODE_SIZE_PROP);
-
-      Map<String, Long> rootCounts = getRootCount(client, snap, stopLevel, stopLevel, nodeSize);
+      StressoConfig sconf = StressoConfig.retrieve(client);
+      
+      Map<String, Long> rootCounts = getRootCount(client, snap, sconf.stopLevel, sconf.stopLevel, sconf.nodeSize);
       ArrayList<String> rootRows = new ArrayList<>(rootCounts.keySet());
       Collections.sort(rootRows);
 
       // TODO 8
-      for (int level = stopLevel + 1; level <= 8; level++) {
+      for (int level = sconf.stopLevel + 1; level <= 8; level++) {
         System.out.printf("Level %d:\n", level);
 
-        Map<String, Long> counts = getRootCount(client, snap, level, stopLevel, nodeSize);
+        Map<String, Long> counts = getRootCount(client, snap, level, sconf.stopLevel, sconf.nodeSize);
 
         long sum = 0;
 
