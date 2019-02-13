@@ -3,12 +3,12 @@
 
 [![Build Status](https://travis-ci.org/astralway/stresso.svg?branch=master)](https://travis-ci.org/astralway/stresso)
 
-An example application designed to stress Apache Fluo.  This Fluo application computes the 
+An example application designed to stress Apache Fluo.  This Fluo application computes the
 number of unique integers through the process of building a bitwise trie.  New numbers
-are added to the trie as leaf nodes.  Observers watch all nodes in the trie to create 
+are added to the trie as leaf nodes.  Observers watch all nodes in the trie to create
 parents and percolate counts up to the root nodes such that each node in the trie keeps
-track of the number of leaf nodes below it. The count at the root nodes should equal 
-the total number of leaf nodes.  This makes it easy to verify if the test ran correctly. 
+track of the number of leaf nodes below it. The count at the root nodes should equal
+the total number of leaf nodes.  This makes it easy to verify if the test ran correctly.
 The test stresses Apache Fluo in that multiple transactions can operate on the same data
 as counts are percolated up the trie.
 
@@ -24,8 +24,8 @@ This test has the following set of configurable parameters.
    to percolate.  The lower the stop level, the more root nodes there are.
    Having more root nodes means less collisions, but all roots need to be
    scanned to get the count of unique numbers.  Having ~64k root nodes is a
-   good choice.  
- * **max** : Random numbers are generated modulo the max. 
+   good choice.
+ * **max** : Random numbers are generated modulo the max.
 
 Setting the stop level such that you have ~64k root nodes is dependent on the
 max and nodeSize.  For example assume we choose a max of 10<sup>12</sup> and a
@@ -53,12 +53,12 @@ with the fluo scan command.  For example `fluo scan -p 05` shows all nodes at
 level 5.
 
 For small scale test a max of 10<sup>9</sup> and a stop level of 6 is a good
-choice. 
+choice.
 
 ## Building Stresso
 
 ```
-mvn package 
+mvn package
 ```
 
 This will create a jar and shaded jar in target:
@@ -75,7 +75,7 @@ These tests can be run using `mvn verify`.
 
 ## Run Stresso on cluster
 
-The [bin directory](/bin) contains a set of scripts to help run this test on a
+The [bin directory](/stresso/bin) contains a set of scripts to help run this test on a
 cluster.  These scripts make the following assumpitions.
 
  * `FLUO_HOME` environment variable is set.  If not set, then set it in `conf/env.sh`.
@@ -83,29 +83,37 @@ cluster.  These scripts make the following assumpitions.
  * Hadoop `hadoop` command is on path.
  * Accumulo `accumulo` command is on path.
 
-Before running any of the scipts, copy [conf/env.sh.example](/conf/env.sh.example) 
-to `conf/env.sh`, then inspect and modify the file.
+Copy [conf/env.sh.example](/stresso/conf/env.sh.example) and
+[conf/fluo-app.properties.example](/stresso/conf/fluo-app.properties.example)
+to `conf/env.sh` and `conf/fluo-app.properties`, then inspect and modify these
+files. Then initialize using the following commands.
 
-Next, execute the [run-test.sh](/bin/run-test.sh) script.  This script will create a
-new Apache Fluo app called `stresso` (which can be changed by `FLUO_APP_NAME` in your env.sh). 
-It will modify the application's fluo.properties, copy the stresso jar to the `lib/` 
-directory of the app and set the following in fluo.properties:
+```bash
+# populate the lib dir needed by init
+./bin/build.sh
 
+# initialize the stresso Fluo application
+fluo init -a stresso -p conf/fluo-app.properties
 ```
-fluo.observer.0=stresso.trie.NodeObserver
-fluo.app.trie.nodeSize=X
-fluo.app.trie.stopLevel=Y
+
+After initialization the Fluo application needs to be started.  There are many possible ways to
+do this.  The following commands will start it locally.
+
+```bash
+mkdir -p logs
+fluo oracle -a stresso &> logs/oracle.log &
+fluo worker -a stresso &> logs/worker.log &
 ```
 
-The `run-test.sh` script will then initialize and start the Stresso application.  
-It will load a lot of data directly into Accumulo without transactions and then 
-incrementally load smaller amounts of data using transactions.  After incrementally 
+Next, execute the [run-test.sh](/stresso/bin/run-test.sh) script.
+This script loads a lot of data directly into Accumulo without transactions and then
+incrementally loads smaller amounts of data using transactions.  After incrementally
 loading some data, it computes the expected number of unique integers using map reduce.
-It then prints the number of unique integers computed by Apache Fluo. 
+It then prints the number of unique integers computed by Apache Fluo.
 
 ## Additional Scripts
 
-The script [generate.sh](/bin/generate.sh) starts a map reduce job to generate
+The script [generate.sh](/stresso/bin/generate.sh) starts a map reduce job to generate
 random integers.
 
 ```
@@ -119,7 +127,7 @@ max       = Generate random numbers between 0 and max
 out dir   = Output directory
 ```
 
-The script [split.sh](/bin/split.sh) pre-splits the Accumulo table used by Apache
+The script [split.sh](/stresso/bin/split.sh) pre-splits the Accumulo table used by Apache
 Fluo.  Consider running this command before loading data.
 
 ```
@@ -130,10 +138,10 @@ where:
 num tablets = Num tablets to create for lowest level of tree.  Will create less tablets for higher levels based on the max.
 ```
 After generating random numbers, load them into Apache Fluo with one of the following
-commands.  The script [init.sh](/bin/init.sh) intializes any empty table using
+commands.  The script [bulk_load.sh](/stresso/bin/bulk_load.sh) intializes any empty table using
 map reduce.  This simulates the case where a user has a lot of initial data to
 load into Fluo.  This command should only be run when the table is empty
-because it writes directly to the Fluo table w/o using transactions.  
+because it writes directly to the Fluo table w/o using transactions.
 
 ```
 init.sh <input dir> <tmp dir> <num reducers>
@@ -146,7 +154,7 @@ tmp dir      = This command runs two map reduce jobs and needs an intermediate d
 num reducers = Number of reduce task map reuduce job should run
 ```
 
-Run the [load.sh](/bin/load.sh) script on a table with existing data. It starts
+Run the [load.sh](/stresso/bin/load.sh) script on a table with existing data. It starts
 a map reduce job that executes load transactions.  Loading the same directory
 multiple times should not result in incorrect counts.
 
@@ -154,7 +162,7 @@ multiple times should not result in incorrect counts.
 load.sh <input dir>
 ```
 
-After loading data, run the [print.sh](/bin/print.sh) script to check the
+After loading data, run the [print.sh](/stresso/bin/print.sh) script to check the
 status of the computation of the number of unique integers within Apache Fluo.  This
 command will print two numbers, the sum of the root nodes and number of root
 nodes.  If there are outstanding notification to process, this count may not be
@@ -164,10 +172,10 @@ accurate.
 print.sh
 ```
 
-In order to know how many unique numbers are expected, run the [unique.sh](/bin/unique.sh)
+In order to know how many unique numbers are expected, run the [unique.sh](/stresso/bin/unique.sh)
 script.  This scrpt runs a map reduce job that calculates the number of
 unique integers.  This script can take a list of directories created by
-multiple runs of [generate.sh](/bin/generate.sh)
+multiple runs of [generate.sh](/stresso/bin/generate.sh)
 
 ```
 unique.sh <num reducers> <input dir>{ <input dir>}

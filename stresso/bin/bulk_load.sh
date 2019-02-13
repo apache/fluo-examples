@@ -8,4 +8,4 @@ if [ "$#" -ne 3 ]; then
     exit 1
 fi
 
-yarn jar $STRESSO_SHADED_JAR stresso.trie.Init -Dmapreduce.job.reduces=$3 $FLUO_PROPS $1 $2
+yarn jar $STRESSO_SHADED_JAR stresso.trie.Init -Dmapreduce.job.reduces=$3 $FLUO_CONN $FLUO_APP_NAME $1 $2

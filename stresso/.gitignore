@@ -7,3 +7,4 @@ target
 *.iml
 git/
 logs/
+lib/

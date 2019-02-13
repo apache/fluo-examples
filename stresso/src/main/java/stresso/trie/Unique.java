@@ -86,6 +86,8 @@ public class Unique extends Configured implements Tool {
 
     job.setOutputFormat(NullOutputFormat.class);
 
+    job.set("mapreduce.job.classloader", "true");
+    
     RunningJob runningJob = JobClient.runJob(job);
     runningJob.waitForCompletion();
     numUnique = (int) runningJob.getCounters().getCounter(Stats.UNIQUE);

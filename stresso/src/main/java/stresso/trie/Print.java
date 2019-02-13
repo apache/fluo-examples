@@ -68,12 +68,10 @@ public class Print {
 
     try (FluoClient client = FluoFactory.newClient(config); Snapshot snap = client.newSnapshot()) {
 
-      int level = client.getAppConfiguration().getInt(Constants.STOP_LEVEL_PROP);
-      int nodeSize = client.getAppConfiguration().getInt(Constants.NODE_SIZE_PROP);
-
-      RowScanner rows = snap.scanner().over(Span.prefix(String.format("%02d:", level)))
+      StressoConfig sconf = StressoConfig.retrieve(client);
+      
+      RowScanner rows = snap.scanner().over(Span.prefix(String.format("%02d:", sconf.stopLevel)))
           .fetch(Constants.COUNT_SEEN_COL, Constants.COUNT_WAIT_COL).byRow().build();
-
 
       long totalSeen = 0;
       long totalWait = 0;
@@ -86,7 +84,7 @@ public class Print {
         String row = columns.getsRow();
         Node node = new Node(row);
 
-        if (node.getNodeSize() == nodeSize) {
+        if (node.getNodeSize() == sconf.nodeSize) {
           for (ColumnValue cv : columns) {
             if (cv.getColumn().equals(Constants.COUNT_SEEN_COL)) {
               totalSeen += Long.parseLong(cv.getsValue());
@@ -108,12 +106,14 @@ public class Print {
 
   public static void main(String[] args) throws Exception {
 
-    if (args.length != 1) {
-      System.err.println("Usage: " + Print.class.getSimpleName() + " <fluo props>");
+    if (args.length != 2) {
+      System.err.println("Usage: " + Print.class.getSimpleName() + " <fluo conn props> <app name>");
       System.exit(-1);
     }
 
-    Stats stats = getStats(new FluoConfiguration(new File(args[0])));
+    FluoConfiguration fconf = new FluoConfiguration(new File(args[0])).setApplicationName(args[1]);
+    
+    Stats stats = getStats(fconf);
 
     System.out.println("Total at root : " + (stats.totalSeen + stats.totalWait));
     System.out.println("Nodes Scanned : " + stats.nodes);

@@ -25,11 +25,8 @@ import java.util.TreeSet;
 import com.google.common.base.Strings;
 import org.apache.accumulo.core.client.AccumuloException;
 import org.apache.accumulo.core.client.AccumuloSecurityException;
-import org.apache.accumulo.core.client.Connector;
-import org.apache.fluo.api.client.FluoClient;
-import org.apache.fluo.api.client.FluoFactory;
+import org.apache.accumulo.core.client.admin.TableOperations;
 import org.apache.fluo.api.config.FluoConfiguration;
-import org.apache.fluo.core.util.AccumuloUtil;
 import org.apache.hadoop.io.Text;
 
 public class Split {
@@ -41,77 +38,66 @@ public class Split {
   private static final String TABLE_BALANCER_PROP = "table.balancer";
 
   public static void main(String[] args) throws Exception {
-    if (args.length != 3) {
+    if (args.length != 4) {
       System.err.println("Usage: " + Split.class.getSimpleName()
-          + " <fluo props> <table props> <tablets per level>");
+          + " <fluo conn props> <app name> <table props> <tablets per level>");
       System.exit(-1);
     }
 
     FluoConfiguration config = new FluoConfiguration(new File(args[0]));
+    config.setApplicationName(args[1]);
 
-    int maxTablets = Integer.parseInt(args[2]);
+    int maxTablets = Integer.parseInt(args[3]);
 
-    int nodeSize;
-    int stopLevel;
-    try (FluoClient client = FluoFactory.newClient(config)) {
-      nodeSize = client.getAppConfiguration().getInt(Constants.NODE_SIZE_PROP);
-      stopLevel = client.getAppConfiguration().getInt(Constants.STOP_LEVEL_PROP);
-    }
+    StressoConfig sconf = StressoConfig.retrieve(config);
 
-    setupBalancer(config);
+    AccumuloUtil.doTableOp(config, (tableOps, table) -> {
+      setupBalancer(tableOps, table);
 
-    int level = 64 / nodeSize;
+      int level = 64 / sconf.nodeSize;
 
-    while (level >= stopLevel) {
-      int numTablets = maxTablets;
-      if (numTablets == 0)
-        break;
+      while (level >= sconf.stopLevel) {
+        int numTablets = maxTablets;
+        if (numTablets == 0)
+          break;
 
-      TreeSet<Text> splits = genSplits(level, numTablets);
-      addSplits(config, splits);
-      System.out.printf("Added %d tablets for level %d\n", numTablets, level);
+        TreeSet<Text> splits = genSplits(level, numTablets);
+        tableOps.addSplits(table, splits);
+        System.out.printf("Added %d tablets for level %d\n", numTablets, level);
 
-      level--;
-    }
+        level--;
+      }
 
-    optimizeAccumulo(config, args[1]);
+      optimizeAccumulo(tableOps, table, args[2]);
+    });
   }
 
-  private static void optimizeAccumulo(FluoConfiguration config, String tableProps)
+  private static void optimizeAccumulo(TableOperations tableOps, String table, String tableProps)
       throws Exception {
-    Connector conn = AccumuloUtil.getConnector(config);
 
     Properties tprops = new Properties();
     tprops.load(new ByteArrayInputStream(tableProps.getBytes(StandardCharsets.UTF_8)));
 
     Set<Entry<Object, Object>> es = tprops.entrySet();
     for (Entry<Object, Object> e : es) {
-      conn.tableOperations().setProperty(config.getAccumuloTable(), e.getKey().toString(),
-          e.getValue().toString());
+      tableOps.setProperty(table, e.getKey().toString(), e.getValue().toString());
     }
     try {
-      conn.instanceOperations().setProperty("table.durability", "flush");
-      conn.tableOperations().removeProperty("accumulo.metadata", "table.durability");
-      conn.tableOperations().removeProperty("accumulo.root", "table.durability");
+      tableOps.setProperty(table, "table.durability", "flush");
+      tableOps.removeProperty("accumulo.metadata", "table.durability");
+      tableOps.removeProperty("accumulo.root", "table.durability");
     } catch (AccumuloException e) {
       System.err.println(
           "Unable to set durability settings (error expected in Accumulo 1.6) : " + e.getMessage());
     }
   }
 
-  private static void setupBalancer(FluoConfiguration config) throws AccumuloSecurityException {
-    Connector conn = AccumuloUtil.getConnector(config);
-
-    try {
-      // setting this prop first intentionally because it should fail in 1.6
-      conn.tableOperations().setProperty(config.getAccumuloTable(), RGB_PATTERN_PROP, "(\\d\\d).*");
-      conn.tableOperations().setProperty(config.getAccumuloTable(), RGB_DEFAULT_PROP, "none");
-      conn.tableOperations().setProperty(config.getAccumuloTable(), TABLE_BALANCER_PROP, RGB_CLASS);
-      System.out.println("Setup tablet group balancer");
-    } catch (AccumuloException e) {
-      System.err.println(
-          "Unable to setup tablet balancer (error expected in Accumulo 1.6) : " + e.getMessage());
-    }
+  private static void setupBalancer(TableOperations tableOps, String table)
+      throws AccumuloSecurityException, AccumuloException {
+    tableOps.setProperty(table, RGB_PATTERN_PROP, "(\\d\\d).*");
+    tableOps.setProperty(table, RGB_DEFAULT_PROP, "none");
+    tableOps.setProperty(table, TABLE_BALANCER_PROP, RGB_CLASS);
+    System.out.println("Setup tablet group balancer");
   }
 
   private static TreeSet<Text> genSplits(int level, int numTablets) {
@@ -132,10 +118,5 @@ public class Split {
     splits.add(new Text(ls + "~"));
 
     return splits;
-  }
-
-  private static void addSplits(FluoConfiguration config, TreeSet<Text> splits) throws Exception {
-    Connector conn = AccumuloUtil.getConnector(config);
-    conn.tableOperations().addSplits(config.getAccumuloTable(), splits);
   }
 }
