@@ -27,7 +27,7 @@
   <url>https://github.com/astralway/stresso</url>
 
   <properties>
-    <accumulo.version>2.0.0-alpha-1</accumulo.version>
+    <accumulo.version>2.0.0-alpha-2</accumulo.version>
     <accumulo-plugin.version>2.0.0-SNAPSHOT</accumulo-plugin.version>
     <hadoop.version>3.1.1</hadoop.version>
     <fluo.version>1.2.0</fluo.version>
@@ -164,11 +164,6 @@
     <dependency>
       <groupId>org.apache.accumulo</groupId>
       <artifactId>accumulo-core</artifactId>
-      <version>${accumulo.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.accumulo</groupId>
-      <artifactId>accumulo-client-mapreduce</artifactId>
       <version>${accumulo.version}</version>
     </dependency>
     <dependency>

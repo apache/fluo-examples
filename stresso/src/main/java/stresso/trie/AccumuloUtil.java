@@ -29,8 +29,8 @@ public class AccumuloUtil {
       FluoConfiguration appCfg = new FluoConfiguration(fadmin.getApplicationConfig());
       appCfg.setApplicationName(fc.getApplicationName());
       AccumuloClient client = Accumulo.newClient()
-          .forInstance(appCfg.getAccumuloInstance(), appCfg.getAccumuloZookeepers())
-          .usingPassword(appCfg.getAccumuloUser(), appCfg.getAccumuloPassword()).build();
+          .to(appCfg.getAccumuloInstance(), appCfg.getAccumuloZookeepers())
+          .as(appCfg.getAccumuloUser(), appCfg.getAccumuloPassword()).build();
       return tableOp.run(client.tableOperations(), appCfg.getAccumuloTable());
     } catch (Exception e) {
       throw new RuntimeException(e);
