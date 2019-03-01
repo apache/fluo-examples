@@ -29,7 +29,7 @@ import org.apache.accumulo.core.client.admin.TableOperations;
 import org.apache.fluo.api.config.FluoConfiguration;
 import org.apache.hadoop.io.Text;
 
-public class Split {
+class Split {
 
   private static final String RGB_CLASS =
       "org.apache.accumulo.server.master.balancer.RegexGroupBalancer";
@@ -37,7 +37,7 @@ public class Split {
   private static final String RGB_DEFAULT_PROP = "table.custom.balancer.group.regex.default";
   private static final String TABLE_BALANCER_PROP = "table.balancer";
 
-  public static void main(String[] args) throws Exception {
+  public static void main(String[] args) {
     if (args.length != 4) {
       System.err.println("Usage: " + Split.class.getSimpleName()
           + " <fluo conn props> <app name> <table props> <tablets per level>");
@@ -57,13 +57,12 @@ public class Split {
       int level = 64 / sconf.nodeSize;
 
       while (level >= sconf.stopLevel) {
-        int numTablets = maxTablets;
-        if (numTablets == 0)
+        if (maxTablets == 0)
           break;
 
-        TreeSet<Text> splits = genSplits(level, numTablets);
+        TreeSet<Text> splits = genSplits(level, maxTablets);
         tableOps.addSplits(table, splits);
-        System.out.printf("Added %d tablets for level %d\n", numTablets, level);
+        System.out.printf("Added %d tablets for level %d\n", maxTablets, level);
 
         level--;
       }

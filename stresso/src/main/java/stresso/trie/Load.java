@@ -36,7 +36,7 @@ public class Load extends Configured implements Tool {
 
   private static final Logger log = LoggerFactory.getLogger(Load.class);
 
-  public static class LoadMapper extends Mapper<LongWritable, NullWritable, Loader, NullWritable> {
+  private static class LoadMapper extends Mapper<LongWritable, NullWritable, Loader, NullWritable> {
 
     @Override
     protected void map(LongWritable key, NullWritable val, Context context)

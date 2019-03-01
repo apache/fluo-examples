@@ -44,7 +44,7 @@ public class NumberLoader implements Loader {
   }
 
   @Override
-  public void load(TransactionBase tx, Context context) throws Exception {
+  public void load(TransactionBase tx, Context context) {
 
     if (nodeSize == null) {
       nodeSize = context.getAppConfiguration().getInt(Constants.NODE_SIZE_PROP);
@@ -59,9 +59,9 @@ public class NumberLoader implements Loader {
     Map<Column, Value> colVals =
         ttx.get().row(rowId).columns(Constants.COUNT_SEEN_COL, Constants.COUNT_WAIT_COL);
 
-    Integer seen = colVals.get(Constants.COUNT_SEEN_COL).toInteger(0);
+    int seen = colVals.get(Constants.COUNT_SEEN_COL).toInteger(0);
     if (seen == 0) {
-      Integer wait = colVals.get(Constants.COUNT_WAIT_COL).toInteger(0);
+      int wait = colVals.get(Constants.COUNT_WAIT_COL).toInteger(0);
       if (wait == 0) {
         ttx.mutate().row(rowId).col(Constants.COUNT_WAIT_COL).set(1);
       }

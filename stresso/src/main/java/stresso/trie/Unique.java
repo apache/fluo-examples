@@ -42,13 +42,13 @@ public class Unique extends Configured implements Tool {
 
   private static final Logger log = LoggerFactory.getLogger(Unique.class);
 
-  public static enum Stats {
-    UNIQUE;
+  public enum Stats {
+    UNIQUE
   }
 
-  public static class UniqueReducer extends MapReduceBase implements Reducer<LongWritable,NullWritable,LongWritable,NullWritable> {
+  private static class UniqueReducer extends MapReduceBase implements Reducer<LongWritable,NullWritable,LongWritable,NullWritable> {
     @Override
-    public void reduce(LongWritable key, Iterator<NullWritable> values, OutputCollector<LongWritable,NullWritable> output, Reporter reporter) throws IOException {
+    public void reduce(LongWritable key, Iterator<NullWritable> values, OutputCollector<LongWritable,NullWritable> output, Reporter reporter) {
       reporter.getCounter(Stats.UNIQUE).increment(1);
     }
   }

@@ -35,7 +35,7 @@ public class NodeObserver implements Observer {
   }
 
   @Override
-  public void process(TransactionBase tx, Bytes row, Column col) throws Exception {
+  public void process(TransactionBase tx, Bytes row, Column col) {
 
     final TypedTransactionBase ttx = Constants.TYPEL.wrap(tx);
 

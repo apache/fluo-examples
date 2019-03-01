@@ -2,7 +2,6 @@ package stresso.trie;
 
 import java.io.File;
 
-import org.apache.accumulo.core.client.Connector;
 import org.apache.fluo.api.config.FluoConfiguration;
 import org.apache.hadoop.io.Text;
 
@@ -12,8 +11,8 @@ import org.apache.hadoop.io.Text;
  * iterator to cleanup past transactions.
  */
 
-public class CompactLL {
-  public static void main(String[] args) throws Exception {
+class CompactLL {
+  public static void main(String[] args) {
 
     if (args.length != 4) {
       System.err.println(

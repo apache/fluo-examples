@@ -27,22 +27,22 @@ import stresso.trie.NodeObserver;
 
 public class TrieStopLevelIT extends TrieMapRedIT {
 
-  @Override
-  protected void preInit(FluoConfiguration conf) {
-    conf.addObserver(new ObserverSpecification(NodeObserver.class.getName()));
+    @Override
+    protected void preInit(FluoConfiguration conf) {
+        conf.addObserver(new ObserverSpecification(NodeObserver.class.getName()));
 
-    SimpleConfiguration appCfg = conf.getAppConfiguration();
-    appCfg.setProperty(Constants.STOP_LEVEL_PROP, 7);
-    appCfg.setProperty(Constants.NODE_SIZE_PROP, 8);
-  }
-
-  @Test
-  public void testEndToEnd() throws Exception {
-    super.testEndToEnd();
-    try (Snapshot snap = client.newSnapshot()) {
-      Bytes row = Bytes.of(Node.generateRootId(8));
-      Assert.assertNull(snap.get(row, Constants.COUNT_SEEN_COL));
-      Assert.assertNull(snap.get(row, Constants.COUNT_WAIT_COL));
+        SimpleConfiguration appCfg = conf.getAppConfiguration();
+        appCfg.setProperty(Constants.STOP_LEVEL_PROP, 7);
+        appCfg.setProperty(Constants.NODE_SIZE_PROP, 8);
     }
-  }
+
+    @Test
+    public void testEndToEnd() throws Exception {
+        super.testEndToEnd();
+        try (Snapshot snap = client.newSnapshot()) {
+            Bytes row = Bytes.of(Node.generateRootId(8));
+            Assert.assertNull(snap.get(row, Constants.COUNT_SEEN_COL));
+            Assert.assertNull(snap.get(row, Constants.COUNT_WAIT_COL));
+        }
+    }
 }

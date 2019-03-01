@@ -44,17 +44,21 @@ public class Node {
     this.number = parseNumber(rowArgs[3]);
   }
 
-  public Number getNumber() {
-    return number;
-  }
+// --Commented out by Inspection START (01.03.2019 15:22):
+//  public Number getNumber() {
+//    return number;
+//  }
+// --Commented out by Inspection STOP (01.03.2019 15:22)
 
   public int getLevel() {
     return level;
   }
 
-  public boolean isRoot() {
-    return level == 0;
-  }
+// --Commented out by Inspection START (01.03.2019 15:22):
+//  public boolean isRoot() {
+//    return level == 0;
+//  }
+// --Commented out by Inspection STOP (01.03.2019 15:22)
 
   public int getNodeSize() {
     return nodeSize;
@@ -71,7 +75,7 @@ public class Node {
   }
 
   private String genHash(){
-    long num = (number == null)? 0l : number.longValue();
+    long num = (number == null)? 0L : number.longValue();
     int hash = Hashing.murmur3_32().newHasher().putInt(level).putInt(nodeSize).putLong(num).hash().asInt();
     hash = hash & 0x7fffffff;
     //base 36 gives a lot more bins in 4 bytes than hex, but it still human readable which is nice for debugging.

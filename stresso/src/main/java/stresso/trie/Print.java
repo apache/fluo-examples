@@ -29,14 +29,16 @@ import org.apache.fluo.api.data.Span;
 public class Print {
 
   public static class Stats {
-    public long totalWait = 0;
-    public long totalSeen = 0;
-    public long nodes;
-    public boolean sawOtherNodes = false;
+    long totalWait = 0;
+    long totalSeen = 0;
+    long nodes;
+    boolean sawOtherNodes = false;
 
-    public Stats() {
-
-    }
+// --Commented out by Inspection START (01.03.2019 15:22):
+//    public Stats() {
+//
+//    }
+// --Commented out by Inspection STOP (01.03.2019 15:22)
 
     public Stats(long tw, long ts, boolean son) {
       this.totalWait = tw;
@@ -44,7 +46,7 @@ public class Print {
       this.sawOtherNodes = son;
     }
 
-    public Stats(long tw, long ts, long nodes, boolean son) {
+    Stats(long tw, long ts, long nodes, boolean son) {
       this.totalWait = tw;
       this.totalSeen = ts;
       this.nodes = nodes;
@@ -64,7 +66,7 @@ public class Print {
     }
   }
 
-  public static Stats getStats(SimpleConfiguration config) throws Exception {
+  public static Stats getStats(SimpleConfiguration config) {
 
     try (FluoClient client = FluoFactory.newClient(config); Snapshot snap = client.newSnapshot()) {
 

@@ -18,15 +18,15 @@ import org.apache.fluo.recipes.core.types.StringEncoder;
 import org.apache.fluo.recipes.core.types.TypeLayer;
 
 /**
- *
+ *  global constant for fluo-example projects
  */
 public class Constants {
 
-  public static final TypeLayer TYPEL = new TypeLayer(new StringEncoder());
+    public static final TypeLayer TYPEL = new TypeLayer(new StringEncoder());
 
-  public static final Column COUNT_SEEN_COL = new Column("count", "seen");
-  public static final Column COUNT_WAIT_COL = new Column("count", "wait");
+    public static final Column COUNT_SEEN_COL = new Column("count", "seen");
+    public static final Column COUNT_WAIT_COL = new Column("count", "wait");
 
-  public static final String NODE_SIZE_PROP = "trie.nodeSize";
-  public static final String STOP_LEVEL_PROP = "trie.stopLevel";
+    public static final String NODE_SIZE_PROP = "trie.nodeSize";
+    public static final String STOP_LEVEL_PROP = "trie.stopLevel";
 }

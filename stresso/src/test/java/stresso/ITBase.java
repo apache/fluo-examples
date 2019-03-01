@@ -37,99 +37,102 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 
-public class ITBase {
+class ITBase {
 
-  protected final static String USER = "root";
-  protected final static String PASSWORD = "ITSecret";
-  protected final static String TABLE_BASE = "table";
-  protected final static String IT_INSTANCE_NAME_PROP = FluoConfiguration.FLUO_PREFIX
-      + ".it.instance.name";
-  protected final static String IT_INSTANCE_CLEAR_PROP = FluoConfiguration.FLUO_PREFIX
-      + ".it.instance.clear";
+    private final static String USER = "root";
+    private final static String PASSWORD = "ITSecret";
+    private final static String TABLE_BASE = "table";
+    private final static String IT_INSTANCE_NAME_PROP = FluoConfiguration.FLUO_PREFIX
+            + ".it.instance.name";
+    private final static String IT_INSTANCE_CLEAR_PROP = FluoConfiguration.FLUO_PREFIX
+            + ".it.instance.clear";
 
-  protected static String instanceName;
-  protected static Connector conn;
-  protected static Instance miniAccumulo;
-  private static MiniAccumuloCluster cluster;
-  private static boolean startedCluster = false;
+    private static String instanceName;
+    private static Connector conn;
+    private static Instance miniAccumulo;
+    private static MiniAccumuloCluster cluster;
+    private static boolean startedCluster = false;
 
-  private static AtomicInteger tableCounter = new AtomicInteger(1);
-  protected static AtomicInteger testCounter = new AtomicInteger();
+    private static AtomicInteger tableCounter = new AtomicInteger(1);
+    private static AtomicInteger testCounter = new AtomicInteger();
 
-  protected FluoConfiguration config;
-  protected FluoClient client;
-  protected MiniFluo miniFluo;
+    FluoConfiguration config;
+    FluoClient client;
+    MiniFluo miniFluo;
 
-  @BeforeClass
-  public static void setUpAccumulo() throws Exception {
-    instanceName = System.getProperty(IT_INSTANCE_NAME_PROP, "it-instance-default");
-    File instanceDir = new File("target/accumulo-maven-plugin/" + instanceName);
-    boolean instanceClear =
-        System.getProperty(IT_INSTANCE_CLEAR_PROP, "true").equalsIgnoreCase("true");
-    if (instanceDir.exists() && instanceClear) {
-      FileUtils.deleteDirectory(instanceDir);
-    }
-    if (!instanceDir.exists()) {
-      MiniAccumuloConfig cfg = new MiniAccumuloConfig(instanceDir, PASSWORD);
-      cfg.setInstanceName(instanceName);
-      cluster = new MiniAccumuloCluster(cfg);
-      cluster.start();
-      startedCluster = true;
-    }
-    miniAccumulo = new MiniAccumuloInstance(instanceName, instanceDir);
-    conn = miniAccumulo.getConnector(USER, new PasswordToken(PASSWORD));
-  }
-
-
-  @AfterClass
-  public static void tearDownAccumulo() throws Exception {
-    if (startedCluster) {
-      cluster.stop();
-    }
-  }
-
-  protected void preInit(FluoConfiguration config){}
-
-  public String getCurTableName() {
-    return TABLE_BASE + tableCounter.get();
-  }
-
-  public String getNextTableName() {
-    return TABLE_BASE + tableCounter.incrementAndGet();
-  }
-
-  @Before
-  public void setUpFluo() throws Exception {
-
-    config = new FluoConfiguration();
-    config.setApplicationName("mini-test" + testCounter.getAndIncrement());
-    config.setAccumuloInstance(miniAccumulo.getInstanceName());
-    config.setAccumuloUser(USER);
-    config.setAccumuloPassword(PASSWORD);
-    config.setAccumuloZookeepers(miniAccumulo.getZooKeepers());
-    config.setInstanceZookeepers(miniAccumulo.getZooKeepers() + "/fluo");
-    config.setMiniStartAccumulo(false);
-    config.setAccumuloTable(getNextTableName());
-    config.setWorkerThreads(5);
-    preInit(config);
-
-    config.setTransactionRollbackTime(1, TimeUnit.SECONDS);
-
-    try (FluoAdmin admin = FluoFactory.newAdmin(config)) {
-      InitializationOptions opts =
-          new InitializationOptions().setClearZookeeper(true).setClearTable(true);
-      admin.initialize(opts);
+    @BeforeClass
+    public static void setUpAccumulo() throws Exception {
+        instanceName = System.getProperty(IT_INSTANCE_NAME_PROP, "it-instance-default");
+        File instanceDir = new File("target/accumulo-maven-plugin/" + instanceName);
+        boolean instanceClear =
+                System.getProperty(IT_INSTANCE_CLEAR_PROP, "true").equalsIgnoreCase("true");
+        if (instanceDir.exists() && instanceClear) {
+            FileUtils.deleteDirectory(instanceDir);
+        }
+        if (!instanceDir.exists()) {
+            MiniAccumuloConfig cfg = new MiniAccumuloConfig(instanceDir, PASSWORD);
+            cfg.setInstanceName(instanceName);
+            cluster = new MiniAccumuloCluster(cfg);
+            cluster.start();
+            startedCluster = true;
+        }
+        miniAccumulo = new MiniAccumuloInstance(instanceName, instanceDir);
+        conn = miniAccumulo.getConnector(USER, new PasswordToken(PASSWORD));
     }
 
-    config.getAppConfiguration().clear();
 
-    client = FluoFactory.newClient(config);
-    miniFluo = FluoFactory.newMiniFluo(config);
-  }
+    @AfterClass
+    public static void tearDownAccumulo() throws Exception {
+        if (startedCluster) {
+            cluster.stop();
+        }
+    }
 
-  @After
-  public void tearDownFluo() throws Exception {
-    miniFluo.close();
-    client.close();
-  }
+    void preInit(FluoConfiguration config) {
+    }
+
+// --Commented out by Inspection START (01.03.2019 15:22):
+//    public String getCurTableName() {
+//        return TABLE_BASE + tableCounter.get();
+//    }
+// --Commented out by Inspection STOP (01.03.2019 15:22)
+
+    private String getNextTableName() {
+        return TABLE_BASE + tableCounter.incrementAndGet();
+    }
+
+    @Before
+    public void setUpFluo() throws Exception {
+
+        config = new FluoConfiguration();
+        config.setApplicationName("mini-test" + testCounter.getAndIncrement());
+        config.setAccumuloInstance(miniAccumulo.getInstanceName());
+        config.setAccumuloUser(USER);
+        config.setAccumuloPassword(PASSWORD);
+        config.setAccumuloZookeepers(miniAccumulo.getZooKeepers());
+        config.setInstanceZookeepers(miniAccumulo.getZooKeepers() + "/fluo");
+        config.setMiniStartAccumulo(false);
+        config.setAccumuloTable(getNextTableName());
+        config.setWorkerThreads(5);
+        preInit(config);
+
+        config.setTransactionRollbackTime(1, TimeUnit.SECONDS);
+
+        try (FluoAdmin admin = FluoFactory.newAdmin(config)) {
+            InitializationOptions opts =
+                    new InitializationOptions().setClearZookeeper(true).setClearTable(true);
+            admin.initialize(opts);
+        }
+
+        config.getAppConfiguration().clear();
+
+        client = FluoFactory.newClient(config);
+        miniFluo = FluoFactory.newMiniFluo(config);
+    }
+
+    @After
+    public void tearDownFluo() {
+        miniFluo.close();
+        client.close();
+    }
 }

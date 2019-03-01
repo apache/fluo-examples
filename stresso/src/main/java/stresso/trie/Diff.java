@@ -16,9 +16,9 @@ import org.apache.fluo.api.config.FluoConfiguration;
 import org.apache.fluo.api.data.ColumnValue;
 import org.apache.fluo.api.data.Span;
 
-public class Diff {
-  public static Map<String, Long> getRootCount(FluoClient client, Snapshot snap, int level,
-      int stopLevel, int nodeSize) throws Exception {
+class Diff {
+  private static Map<String, Long> getRootCount(FluoClient client, Snapshot snap, int level,
+                                                int stopLevel, int nodeSize) {
 
     HashMap<String, Long> counts = new HashMap<>();
 

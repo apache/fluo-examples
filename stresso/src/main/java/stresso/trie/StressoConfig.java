@@ -9,7 +9,7 @@ public class StressoConfig {
   public final int nodeSize;
   public final int stopLevel;
   
-  public StressoConfig(int nodeSize, int stopLevel) {
+  private StressoConfig(int nodeSize, int stopLevel) {
     this.nodeSize = nodeSize;
     this.stopLevel = stopLevel;
   }

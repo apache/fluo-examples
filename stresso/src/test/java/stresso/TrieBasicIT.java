@@ -41,80 +41,80 @@ import static stresso.trie.Constants.TYPEL;
  */
 public class TrieBasicIT extends ITBase {
 
-  private static final Logger log = LoggerFactory.getLogger(TrieBasicIT.class);
+    private static final Logger log = LoggerFactory.getLogger(TrieBasicIT.class);
 
-  @Override
-  protected void preInit(FluoConfiguration conf) {
-    conf.addObserver(new ObserverSpecification(NodeObserver.class.getName()));
-    conf.getAppConfiguration().setProperty(Constants.STOP_LEVEL_PROP, 0);
-  }
-
-  @Test
-  public void testBit32() throws Exception {
-    runTrieTest(20, Integer.MAX_VALUE, 32);
-  }
-
-  @Test
-  public void testBit8() throws Exception {
-    runTrieTest(25, Integer.MAX_VALUE, 8);
-  }
-
-  @Test
-  public void testBit4() throws Exception {
-    runTrieTest(10, Integer.MAX_VALUE, 4);
-  }
-
-  @Test
-  public void testBit() throws Exception {
-    runTrieTest(5, Integer.MAX_VALUE, 1);
-  }
-
-  @Test
-  public void testDuplicates() throws Exception {
-    runTrieTest(20, 10, 4);
-  }
-
-  private void runTrieTest(int ingestNum, int maxValue, int nodeSize) throws Exception {
-
-    log.info("Ingesting " + ingestNum + " unique numbers with a nodeSize of " + nodeSize + " bits");
-
-    config.setLoaderThreads(0);
-    config.setLoaderQueueSize(0);
-
-    try (FluoClient fluoClient = FluoFactory.newClient(config)) {
-
-      int uniqueNum;
-
-      try (LoaderExecutor le = client.newLoaderExecutor()) {
-        Random random = new Random();
-        Set<Integer> ingested = new HashSet<>();
-        for (int i = 0; i < ingestNum; i++) {
-          int num = Math.abs(random.nextInt(maxValue));
-          le.execute(new NumberLoader(num, nodeSize));
-          ingested.add(num);
-        }
-
-        uniqueNum = ingested.size();
-        log.info(
-            "Ingested " + uniqueNum + " unique numbers with a nodeSize of " + nodeSize + " bits");
-      }
-
-      miniFluo.waitForObservers();
-
-      try (TypedSnapshot tsnap = TYPEL.wrap(client.newSnapshot())) {
-        Integer result =
-            tsnap.get().row(Node.generateRootId(nodeSize)).col(COUNT_SEEN_COL).toInteger();
-        if (result == null) {
-          log.error("Could not find root node");
-          FluoITHelper.printFluoTable(client);
-        }
-        if (!result.equals(uniqueNum)) {
-          log.error(
-              "Count (" + result + ") at root node does not match expected (" + uniqueNum + "):");
-          FluoITHelper.printFluoTable(client);
-        }
-        Assert.assertEquals(uniqueNum, result.intValue());
-      }
+    @Override
+    protected void preInit(FluoConfiguration conf) {
+        conf.addObserver(new ObserverSpecification(NodeObserver.class.getName()));
+        conf.getAppConfiguration().setProperty(Constants.STOP_LEVEL_PROP, 0);
     }
-  }
+
+    @Test
+    public void testBit32() throws Exception {
+        runTrieTest(20, Integer.MAX_VALUE, 32);
+    }
+
+    @Test
+    public void testBit8() throws Exception {
+        runTrieTest(25, Integer.MAX_VALUE, 8);
+    }
+
+    @Test
+    public void testBit4() throws Exception {
+        runTrieTest(10, Integer.MAX_VALUE, 4);
+    }
+
+    @Test
+    public void testBit() throws Exception {
+        runTrieTest(5, Integer.MAX_VALUE, 1);
+    }
+
+    @Test
+    public void testDuplicates() throws Exception {
+        runTrieTest(20, 10, 4);
+    }
+
+    private void runTrieTest(int ingestNum, int maxValue, int nodeSize) {
+
+        log.info("Ingesting " + ingestNum + " unique numbers with a nodeSize of " + nodeSize + " bits");
+
+        config.setLoaderThreads(0);
+        config.setLoaderQueueSize(0);
+
+        try (FluoClient fluoClient = FluoFactory.newClient(config)) {
+
+            int uniqueNum;
+
+            try (LoaderExecutor le = client.newLoaderExecutor()) {
+                Random random = new Random();
+                Set<Integer> ingested = new HashSet<>();
+                for (int i = 0; i < ingestNum; i++) {
+                    int num = Math.abs(random.nextInt(maxValue));
+                    le.execute(new NumberLoader(num, nodeSize));
+                    ingested.add(num);
+                }
+
+                uniqueNum = ingested.size();
+                log.info(
+                        "Ingested " + uniqueNum + " unique numbers with a nodeSize of " + nodeSize + " bits");
+            }
+
+            miniFluo.waitForObservers();
+
+            try (TypedSnapshot tsnap = TYPEL.wrap(client.newSnapshot())) {
+                Integer result =
+                        tsnap.get().row(Node.generateRootId(nodeSize)).col(COUNT_SEEN_COL).toInteger();
+                if (result == null) {
+                    log.error("Could not find root node");
+                    FluoITHelper.printFluoTable(client);
+                }
+                if (!(result != null ? result.equals(uniqueNum) : false)) {
+                    log.error(
+                            "Count (" + result + ") at root node does not match expected (" + uniqueNum + "):");
+                    FluoITHelper.printFluoTable(client);
+                }
+                Assert.assertEquals(uniqueNum, result.intValue());
+            }
+        }
+    }
 }

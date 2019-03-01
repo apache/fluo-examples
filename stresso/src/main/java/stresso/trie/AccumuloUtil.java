@@ -7,7 +7,7 @@ import org.apache.fluo.api.client.FluoAdmin;
 import org.apache.fluo.api.client.FluoFactory;
 import org.apache.fluo.api.config.FluoConfiguration;
 
-public class AccumuloUtil {
+class AccumuloUtil {
 
   public interface TableOp<T> {
     T run(TableOperations tableOps, String tableName) throws Exception;
