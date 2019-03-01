@@ -1,15 +1,18 @@
 /*
- * Copyright 2015 Webindex authors (see AUTHORS)
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
- * in compliance with the License. You may obtain a copy of the License at
- * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software distributed under the License
- * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
- * or implied. See the License for the specific language governing permissions and limitations under
- * the License.
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package webindex.data.spark;
@@ -43,9 +46,7 @@ import webindex.core.models.URL;
 import webindex.core.models.UriInfo;
 import webindex.data.fluo.DomainCombineQ;
 import webindex.data.fluo.PageObserver;
-
 import webindex.data.fluo.UriCombineQ;
-
 import webindex.data.util.ArchiveUtil;
 import webindex.serialization.WebindexKryoFactory;
 
@@ -105,47 +106,45 @@ public class IndexUtil {
    * Creates initial data for external Accumulo index table
    */
   public static JavaPairRDD<RowColumn, Bytes> createAccumuloIndex(IndexStats stats,
-      JavaRDD<Page> pages, JavaPairRDD<String, UriInfo> uriMap, JavaPairRDD<String, Long> domainMap) {
+      JavaRDD<Page> pages, JavaPairRDD<String, UriInfo> uriMap,
+      JavaPairRDD<String, Long> domainMap) {
 
-    JavaPairRDD<RowColumn, Bytes> accumuloIndex =
-        pages.flatMapToPair(page -> {
-          if (page.isEmpty()) {
-            stats.addEmpty(1);
-            return new ArrayList<>();
-          }
-          stats.addPage(1);
-          Set<Link> links1 = page.getOutboundLinks();
-          stats.addExternalLinks(links1.size());
+    JavaPairRDD<RowColumn, Bytes> accumuloIndex = pages.flatMapToPair(page -> {
+      if (page.isEmpty()) {
+        stats.addEmpty(1);
+        return new ArrayList<>();
+      }
+      stats.addPage(1);
+      Set<Link> links1 = page.getOutboundLinks();
+      stats.addExternalLinks(links1.size());
 
-          List<Tuple2<RowColumn, Bytes>> ret = new ArrayList<>();
-          String uri = page.getUri();
-          if (links1.size() > 0) {
-            addRCV(ret, "p:" + uri, Constants.PAGE_CUR_COL, gson.toJson(page));
-          }
-          for (Link link : links1) {
-            addRCV(ret, "p:" + link.getUri(), new Column(Constants.INLINKS, uri),
-                link.getAnchorText());
-          }
-          return ret;
-        });
+      List<Tuple2<RowColumn, Bytes>> ret = new ArrayList<>();
+      String uri = page.getUri();
+      if (links1.size() > 0) {
+        addRCV(ret, "p:" + uri, Constants.PAGE_CUR_COL, gson.toJson(page));
+      }
+      for (Link link : links1) {
+        addRCV(ret, "p:" + link.getUri(), new Column(Constants.INLINKS, uri), link.getAnchorText());
+      }
+      return ret;
+    });
 
-    accumuloIndex =
-        accumuloIndex.union(uriMap.flatMapToPair(t -> {
-          List<Tuple2<RowColumn, Bytes>> ret = new ArrayList<>();
-          String uri = t._1();
-          UriInfo uriInfo = t._2();
-          addRCV(ret, "t:" + IndexClient.revEncodeLong(uriInfo.linksTo) + ":" + uri, Column.EMPTY,
-              uriInfo.linksTo);
-          String domain = URL.fromUri(t._1()).getReverseDomain();
-          String domainRow = IndexClient.encodeDomainRankUri(domain, uriInfo.linksTo, uri);
-          addRCV(ret, domainRow, new Column(Constants.RANK, ""), uriInfo.linksTo);
-          addRCV(ret, "p:" + uri, Constants.PAGE_INCOUNT_COL, uriInfo.linksTo);
-          return ret;
-        }));
+    accumuloIndex = accumuloIndex.union(uriMap.flatMapToPair(t -> {
+      List<Tuple2<RowColumn, Bytes>> ret = new ArrayList<>();
+      String uri = t._1();
+      UriInfo uriInfo = t._2();
+      addRCV(ret, "t:" + IndexClient.revEncodeLong(uriInfo.linksTo) + ":" + uri, Column.EMPTY,
+          uriInfo.linksTo);
+      String domain = URL.fromUri(t._1()).getReverseDomain();
+      String domainRow = IndexClient.encodeDomainRankUri(domain, uriInfo.linksTo, uri);
+      addRCV(ret, domainRow, new Column(Constants.RANK, ""), uriInfo.linksTo);
+      addRCV(ret, "p:" + uri, Constants.PAGE_INCOUNT_COL, uriInfo.linksTo);
+      return ret;
+    }));
 
-    accumuloIndex =
-        accumuloIndex.union(domainMap.mapToPair(t -> new Tuple2<>(new RowColumn("d:" + t._1(),
-            new Column(Constants.DOMAIN, Constants.PAGECOUNT)), Bytes.of(t._2() + ""))));
+    accumuloIndex = accumuloIndex.union(domainMap.mapToPair(t -> new Tuple2<>(
+        new RowColumn("d:" + t._1(), new Column(Constants.DOMAIN, Constants.PAGECOUNT)),
+        Bytes.of(t._2() + ""))));
 
     accumuloIndex.persist(StorageLevel.DISK_ONLY());
 

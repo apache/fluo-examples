@@ -1,3 +1,20 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package phrasecount.query;
 
 import java.util.Iterator;
@@ -27,10 +44,10 @@ public class PhraseCountTable implements Iterable<PhraseAndCounts> {
 
   static final String STAT_CF = "stat";
 
-  //name of column qualifier used to store phrase count across all documents
+  // name of column qualifier used to store phrase count across all documents
   static final String TOTAL_PC_CQ = "totalCount";
 
-  //name of column qualifier used to store number of documents containing a phrase
+  // name of column qualifier used to store number of documents containing a phrase
   static final String DOC_PC_CQ = "docCount";
 
   public static Mutation createMutation(String phrase, long seq, Counts pc) {
@@ -38,15 +55,17 @@ public class PhraseCountTable implements Iterable<PhraseAndCounts> {
 
     // use the sequence number for the Accumulo timestamp, this will cause older updates to fall
     // behind newer ones
-    if (pc.totalPhraseCount == 0)
+    if (pc.totalPhraseCount == 0) {
       mutation.putDelete(STAT_CF, TOTAL_PC_CQ, seq);
-    else
+    } else {
       mutation.put(STAT_CF, TOTAL_PC_CQ, seq, pc.totalPhraseCount + "");
+    }
 
-    if (pc.docPhraseCount == 0)
+    if (pc.docPhraseCount == 0) {
       mutation.putDelete(STAT_CF, DOC_PC_CQ, seq);
-    else
+    } else {
       mutation.put(STAT_CF, DOC_PC_CQ, seq, pc.docPhraseCount + "");
+    }
 
     return mutation;
   }
@@ -97,7 +116,8 @@ public class PhraseCountTable implements Iterable<PhraseAndCounts> {
       scanner.fetchColumn(new Text(STAT_CF), new Text(TOTAL_PC_CQ));
       scanner.fetchColumn(new Text(STAT_CF), new Text(DOC_PC_CQ));
 
-      return Iterators.transform(new RowIterator(scanner), new RowTransform());
+      RowTransform transform = new RowTransform();
+      return Iterators.transform(new RowIterator(scanner), transform::apply);
     } catch (RuntimeException e) {
       throw e;
     } catch (Exception e) {

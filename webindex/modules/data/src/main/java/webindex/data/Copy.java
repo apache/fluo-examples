@@ -1,15 +1,18 @@
 /*
- * Copyright 2015 Webindex authors (see AUTHORS)
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
- * in compliance with the License. You may obtain a copy of the License at
- * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software distributed under the License
- * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
- * or implied. See the License for the specific language governing permissions and limitations under
- * the License.
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package webindex.data;
@@ -75,30 +78,29 @@ public class Copy {
       final String prefix = WebIndexConfig.CC_URL_PREFIX;
       final String destDir = destPath.toString();
 
-      copyRDD
-          .foreachPartition(iter -> {
-            FileSystem fs = IndexEnv.getHDFS(hadoopConfDir);
-            iter.forEachRemaining(ccPath -> {
-              try {
-                Path dfsPath = new Path(destDir + "/" + getFilename(ccPath));
-                if (fs.exists(dfsPath)) {
-                  log.error("File {} exists in HDFS and should have been previously filtered",
-                      dfsPath.getName());
-                } else {
-                  String urlToCopy = prefix + ccPath;
-                  log.info("Starting copy of {} to {}", urlToCopy, destDir);
-                  try (OutputStream out = fs.create(dfsPath);
-                      BufferedInputStream in =
-                          new BufferedInputStream(new URL(urlToCopy).openStream())) {
-                    IOUtils.copy(in, out);
-                  }
-                  log.info("Created {}", dfsPath.getName());
-                }
-              } catch (IOException e) {
-                log.error("Exception while copying {}", ccPath, e);
+      copyRDD.foreachPartition(iter -> {
+        FileSystem fs = IndexEnv.getHDFS(hadoopConfDir);
+        iter.forEachRemaining(ccPath -> {
+          try {
+            Path dfsPath = new Path(destDir + "/" + getFilename(ccPath));
+            if (fs.exists(dfsPath)) {
+              log.error("File {} exists in HDFS and should have been previously filtered",
+                  dfsPath.getName());
+            } else {
+              String urlToCopy = prefix + ccPath;
+              log.info("Starting copy of {} to {}", urlToCopy, destDir);
+              try (OutputStream out = fs.create(dfsPath);
+                  BufferedInputStream in =
+                      new BufferedInputStream(new URL(urlToCopy).openStream())) {
+                IOUtils.copy(in, out);
               }
-            });
-          });
+              log.info("Created {}", dfsPath.getName());
+            }
+          } catch (IOException e) {
+            log.error("Exception while copying {}", ccPath, e);
+          }
+        });
+      });
     }
   }
 }

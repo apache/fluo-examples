@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Copyright 2015 Webindex authors (see AUTHORS)
-
-  Licensed under the Apache License, Version 2.0 (the "License");
-  you may not use this file except in compliance with the License.
-  You may obtain a copy of the License at
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
 
       http://www.apache.org/licenses/LICENSE-2.0
 
@@ -17,7 +18,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <groupId>io.github.astralway</groupId>
+    <groupId>org.apache.fluo</groupId>
     <artifactId>webindex-parent</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <relativePath>../../pom.xml</relativePath>
@@ -36,24 +37,6 @@
     <dependency>
       <groupId>commons-io</groupId>
       <artifactId>commons-io</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>io.github.astralway</groupId>
-      <artifactId>webindex-core</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>io.github.astralway</groupId>
-      <artifactId>webindex-data</artifactId>
-      <exclusions>
-        <exclusion>
-          <groupId>asm</groupId>
-          <artifactId>asm</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>io.github.astralway</groupId>
-      <artifactId>webindex-ui</artifactId>
     </dependency>
     <dependency>
       <groupId>org.apache.accumulo</groupId>
@@ -80,6 +63,24 @@
     <dependency>
       <groupId>org.apache.fluo</groupId>
       <artifactId>fluo-recipes-test</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.fluo</groupId>
+      <artifactId>webindex-core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.fluo</groupId>
+      <artifactId>webindex-data</artifactId>
+      <exclusions>
+        <exclusion>
+          <groupId>asm</groupId>
+          <artifactId>asm</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.fluo</groupId>
+      <artifactId>webindex-ui</artifactId>
     </dependency>
     <dependency>
       <groupId>org.netpreserve.commons</groupId>
