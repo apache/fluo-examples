@@ -1,11 +1,12 @@
 /*
- * Copyright 2014 Stresso authors (see AUTHORS)
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -46,9 +47,11 @@ public class Unique extends Configured implements Tool {
     UNIQUE;
   }
 
-  public static class UniqueReducer extends MapReduceBase implements Reducer<LongWritable,NullWritable,LongWritable,NullWritable> {
+  public static class UniqueReducer extends MapReduceBase
+      implements Reducer<LongWritable, NullWritable, LongWritable, NullWritable> {
     @Override
-    public void reduce(LongWritable key, Iterator<NullWritable> values, OutputCollector<LongWritable,NullWritable> output, Reporter reporter) throws IOException {
+    public void reduce(LongWritable key, Iterator<NullWritable> values,
+        OutputCollector<LongWritable, NullWritable> output, Reporter reporter) throws IOException {
       reporter.getCounter(Stats.UNIQUE).increment(1);
     }
   }
@@ -87,12 +90,12 @@ public class Unique extends Configured implements Tool {
     job.setOutputFormat(NullOutputFormat.class);
 
     job.set("mapreduce.job.classloader", "true");
-    
+
     RunningJob runningJob = JobClient.runJob(job);
     runningJob.waitForCompletion();
     numUnique = (int) runningJob.getCounters().getCounter(Stats.UNIQUE);
 
-    log.debug("numUnique : "+numUnique);
+    log.debug("numUnique : " + numUnique);
 
     return runningJob.isSuccessful() ? 0 : -1;
 

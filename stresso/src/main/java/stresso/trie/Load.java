@@ -1,15 +1,18 @@
 /*
- * Copyright 2014 Stresso authors (see AUTHORS)
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
- * in compliance with the License. You may obtain a copy of the License at
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the License
- * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
- * or implied. See the License for the specific language governing permissions and limitations under
- * the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package stresso.trie;
@@ -49,13 +52,14 @@ public class Load extends Configured implements Tool {
   public int run(String[] args) throws Exception {
 
     if (args.length != 3) {
-      log.error("Usage: " + this.getClass().getSimpleName() + "<fluo conn props> <app name> <input dir>");
+      log.error(
+          "Usage: " + this.getClass().getSimpleName() + "<fluo conn props> <app name> <input dir>");
       System.exit(-1);
     }
 
     FluoConfiguration props = new FluoConfiguration(new File(args[0]));
     props.setApplicationName(args[1]);
-    Path input = new Path(args[2]);
+    final Path input = new Path(args[2]);
 
     Job job = Job.getInstance(getConf());
 

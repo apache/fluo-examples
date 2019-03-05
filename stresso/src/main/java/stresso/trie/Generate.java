@@ -1,11 +1,12 @@
 /*
- * Copyright 2014 Stresso authors (see AUTHORS)
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -67,7 +68,7 @@ public class Generate extends Configured implements Tool {
 
   }
 
-  public static class RandomLongInputFormat implements InputFormat<LongWritable,NullWritable> {
+  public static class RandomLongInputFormat implements InputFormat<LongWritable, NullWritable> {
 
     @Override
     public InputSplit[] getSplits(JobConf job, int numSplits) throws IOException {
@@ -79,12 +80,13 @@ public class Generate extends Configured implements Tool {
     }
 
     @Override
-    public RecordReader<LongWritable,NullWritable> getRecordReader(InputSplit split, JobConf job, Reporter reporter) throws IOException {
+    public RecordReader<LongWritable, NullWritable> getRecordReader(InputSplit split, JobConf job,
+        Reporter reporter) throws IOException {
 
       final int numToGen = job.getInt(TRIE_GEN_NUM_PER_MAPPER_PROP, 1);
       final long max = job.getLong(TRIE_GEN_MAX_PROP, Long.MAX_VALUE);
 
-      return new RecordReader<LongWritable,NullWritable>() {
+      return new RecordReader<LongWritable, NullWritable>() {
 
         private Random random = new Random();
         private int count = 0;
@@ -92,10 +94,11 @@ public class Generate extends Configured implements Tool {
         @Override
         public boolean next(LongWritable key, NullWritable value) throws IOException {
 
-          if (count == numToGen)
+          if (count == numToGen) {
             return false;
+          }
 
-          key.set((random.nextLong() & 0x7fffffffffffffffl) % max);
+          key.set((random.nextLong() & 0x7fffffffffffffffL) % max);
           count++;
           return true;
         }
@@ -130,14 +133,15 @@ public class Generate extends Configured implements Tool {
   public int run(String[] args) throws Exception {
 
     if (args.length != 4) {
-      log.error("Usage: " + this.getClass().getSimpleName() + " <numMappers> <numbersPerMapper> <max> <output dir>");
+      log.error("Usage: " + this.getClass().getSimpleName()
+          + " <numMappers> <numbersPerMapper> <max> <output dir>");
       System.exit(-1);
     }
 
     int numMappers = Integer.parseInt(args[0]);
     int numPerMapper = Integer.parseInt(args[1]);
     long max = Long.parseLong(args[2]);
-    Path out = new Path(args[3]);
+    final Path out = new Path(args[3]);
 
     Preconditions.checkArgument(numMappers > 0, "numMappers <= 0");
     Preconditions.checkArgument(numPerMapper > 0, "numPerMapper <= 0");

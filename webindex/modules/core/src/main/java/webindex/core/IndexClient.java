@@ -1,15 +1,18 @@
 /*
- * Copyright 2015 Webindex authors (see AUTHORS)
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
- * in compliance with the License. You may obtain a copy of the License at
- * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software distributed under the License
- * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
- * or implied. See the License for the specific language governing permissions and limitations under
- * the License.
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package webindex.core;
@@ -164,17 +167,16 @@ public class IndexClient {
     String cf = Constants.RANK;
     try {
       Scanner scanner = conn.createScanner(accumuloIndexTable, Authorizations.EMPTY);
-      Pager pager =
-          Pager.build(scanner, Range.prefix(row + ":"), PAGE_SIZE, entry -> {
-            if (entry.isNext()) {
-              pages.setNext(entry.getKey().getRowData().toString().split(":", 3)[2]);
-            } else {
-              String url =
-                  URL.fromUri(entry.getKey().getRowData().toString().split(":", 4)[3]).toString();
-              Long count = Long.parseLong(entry.getValue().toString());
-              pages.addPage(url, count);
-            }
-          });
+      Pager pager = Pager.build(scanner, Range.prefix(row + ":"), PAGE_SIZE, entry -> {
+        if (entry.isNext()) {
+          pages.setNext(entry.getKey().getRowData().toString().split(":", 3)[2]);
+        } else {
+          String url =
+              URL.fromUri(entry.getKey().getRowData().toString().split(":", 4)[3]).toString();
+          Long count = Long.parseLong(entry.getValue().toString());
+          pages.addPage(url, count);
+        }
+      });
       if (next.isEmpty()) {
         pager.read(pageNum);
       } else {
@@ -247,7 +249,8 @@ public class IndexClient {
     return links;
   }
 
-  public static void genDomainMutations(DomainUpdate update, long seq, Consumer<Mutation> consumer) {
+  public static void genDomainMutations(DomainUpdate update, long seq,
+      Consumer<Mutation> consumer) {
     Map<RowColumn, Bytes> oldData = genDomainData(update.getDomain(), update.getOldPageCount());
     Map<RowColumn, Bytes> newData = genDomainData(update.getDomain(), update.getNewPageCount());
     AccumuloTranslator.generateMutations(seq, oldData, newData, consumer);

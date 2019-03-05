@@ -1,3 +1,20 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package phrasecount.cmd;
 
 import java.io.File;
@@ -8,7 +25,6 @@ import java.util.Map;
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
-import org.apache.accumulo.core.conf.Property;
 import org.apache.accumulo.minicluster.MemoryUnit;
 import org.apache.accumulo.minicluster.MiniAccumuloCluster;
 import org.apache.accumulo.minicluster.MiniAccumuloConfig;
@@ -45,8 +61,9 @@ public class Mini {
 
     try {
       jc.parse(args);
-      if (params.args == null || params.args.size() != 2)
+      if (params.args == null || params.args.size() != 2) {
         throw new ParameterException("Expected two arguments");
+      }
     } catch (ParameterException pe) {
       System.out.println(pe.getMessage());
       jc.setProgramName(Mini.class.getSimpleName());
@@ -60,8 +77,8 @@ public class Mini {
     if (params.moreMemory) {
       cfg.setMemory(ServerType.TABLET_SERVER, 2, MemoryUnit.GIGABYTE);
       Map<String, String> site = new HashMap<>();
-      site.put(Property.TSERV_DATACACHE_SIZE.getKey(), "768M");
-      site.put(Property.TSERV_INDEXCACHE_SIZE.getKey(), "256M");
+      site.put("tserver.cache.data.size", "768M");
+      site.put("tserver.cache.index.size", "256M");
       cfg.setSiteConfig(site);
     }
 

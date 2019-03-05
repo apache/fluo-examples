@@ -1,11 +1,12 @@
 /*
- * Copyright 2014 Stresso authors (see AUTHORS)
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -13,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package stresso.trie;
 
 import com.google.common.base.Strings;
@@ -20,7 +22,8 @@ import com.google.common.hash.Hashing;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
-/** Utility class that represents trie node
+/**
+ * Utility class that represents trie node
  */
 public class Node {
 
@@ -28,7 +31,7 @@ public class Node {
   private final int level;
   private final int nodeSize;
 
-  static final int HASH_LEN=4;
+  static final int HASH_LEN = 4;
 
   public Node(Number number, int level, int nodeSize) {
     this.number = number;
@@ -38,7 +41,7 @@ public class Node {
 
   public Node(String rowId) {
     String[] rowArgs = rowId.split(":");
-    checkArgument(validRowId(rowArgs), "Invalid row id - "+ rowId);
+    checkArgument(validRowId(rowArgs), "Invalid row id - " + rowId);
     this.level = Integer.parseInt(rowArgs[0]);
     this.nodeSize = Integer.parseInt(rowArgs[2]);
     this.number = parseNumber(rowArgs[3]);
@@ -70,12 +73,15 @@ public class Node {
     }
   }
 
-  private String genHash(){
-    long num = (number == null)? 0l : number.longValue();
-    int hash = Hashing.murmur3_32().newHasher().putInt(level).putInt(nodeSize).putLong(num).hash().asInt();
+  private String genHash() {
+    long num = (number == null) ? 0L : number.longValue();
+    int hash =
+        Hashing.murmur3_32().newHasher().putInt(level).putInt(nodeSize).putLong(num).hash().asInt();
     hash = hash & 0x7fffffff;
-    //base 36 gives a lot more bins in 4 bytes than hex, but it still human readable which is nice for debugging.
-    String hashString = Strings.padStart(Integer.toString(hash, Character.MAX_RADIX), HASH_LEN, '0');
+    // base 36 gives a lot more bins in 4 bytes than hex, but it still human readable which is nice
+    // for debugging.
+    String hashString =
+        Strings.padStart(Integer.toString(hash, Character.MAX_RADIX), HASH_LEN, '0');
     return hashString.substring(hashString.length() - HASH_LEN);
   }
 
@@ -98,17 +104,18 @@ public class Node {
       if (number instanceof Long) {
         int shift = (((64 / nodeSize) - level) * nodeSize) + nodeSize;
         Long parent = (number.longValue() >> shift) << shift;
-        return new Node(parent, level-1, nodeSize);
+        return new Node(parent, level - 1, nodeSize);
       } else {
         int shift = (((32 / nodeSize) - level) * nodeSize) + nodeSize;
         Integer parent = (number.intValue() >> shift) << shift;
-        return new Node(parent, level-1, nodeSize);
+        return new Node(parent, level - 1, nodeSize);
       }
     }
   }
 
   private boolean validRowId(String[] rowArgs) {
-    return ((rowArgs.length == 4) && (rowArgs[0] != null) && (rowArgs[1] != null) && (rowArgs[2] != null) && (rowArgs[3] != null));
+    return ((rowArgs.length == 4) && (rowArgs[0] != null) && (rowArgs[1] != null)
+        && (rowArgs[2] != null) && (rowArgs[3] != null));
   }
 
   public static String generateRootId(int nodeSize) {

@@ -1,17 +1,19 @@
 /*
- * Copyright 2017 Stresso authors (see AUTHORS)
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
- * in compliance with the License. You may obtain a copy of the License at
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the License
- * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
- * or implied. See the License for the specific language governing permissions and limitations under
- * the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
-
 
 package stresso;
 
@@ -42,10 +44,10 @@ public class ITBase {
   protected final static String USER = "root";
   protected final static String PASSWORD = "ITSecret";
   protected final static String TABLE_BASE = "table";
-  protected final static String IT_INSTANCE_NAME_PROP = FluoConfiguration.FLUO_PREFIX
-      + ".it.instance.name";
-  protected final static String IT_INSTANCE_CLEAR_PROP = FluoConfiguration.FLUO_PREFIX
-      + ".it.instance.clear";
+  protected final static String IT_INSTANCE_NAME_PROP =
+      FluoConfiguration.FLUO_PREFIX + ".it.instance.name";
+  protected final static String IT_INSTANCE_CLEAR_PROP =
+      FluoConfiguration.FLUO_PREFIX + ".it.instance.clear";
 
   protected static String instanceName;
   protected static Connector conn;
@@ -54,7 +56,7 @@ public class ITBase {
   private static boolean startedCluster = false;
 
   private static AtomicInteger tableCounter = new AtomicInteger(1);
-  protected static AtomicInteger testCounter = new AtomicInteger();
+  protected static final AtomicInteger testCounter = new AtomicInteger();
 
   protected FluoConfiguration config;
   protected FluoClient client;
@@ -88,7 +90,7 @@ public class ITBase {
     }
   }
 
-  protected void preInit(FluoConfiguration config){}
+  protected void preInit(FluoConfiguration config) {}
 
   public String getCurTableName() {
     return TABLE_BASE + tableCounter.get();

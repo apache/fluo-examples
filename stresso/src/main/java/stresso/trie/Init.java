@@ -1,15 +1,18 @@
 /*
- * Copyright 2014 Stresso authors (see AUTHORS)
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
- * in compliance with the License. You may obtain a copy of the License at
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the License
- * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
- * or implied. See the License for the specific language governing permissions and limitations under
- * the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package stresso.trie;
@@ -80,10 +83,11 @@ public class Init extends Configured implements Tool {
       while (node != null) {
         outputKey.set(node.getRowId());
         context.write(outputKey, ONE);
-        if (node.getLevel() <= stopLevel)
+        if (node.getLevel() <= stopLevel) {
           node = null;
-        else
+        } else {
           node = node.getParent();
+        }
       }
     }
   }
@@ -140,8 +144,9 @@ public class Init extends Configured implements Tool {
     Path tmp = new Path(args[3]);
 
     int ret = unique(input, new Path(tmp, "nums"));
-    if (ret != 0)
+    if (ret != 0) {
       return ret;
+    }
 
     return buildTree(props, tmp);
   }
@@ -171,7 +176,7 @@ public class Init extends Configured implements Tool {
   }
 
   private int buildTree(FluoConfiguration props, Path tmp) throws Exception {
-    StressoConfig sconf = StressoConfig.retrieve(props);
+    final StressoConfig sconf = StressoConfig.retrieve(props);
 
     Job job = Job.getInstance(getConf());
 

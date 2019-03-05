@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Copyright 2014 Stresso authors (see AUTHORS)
-
-  Licensed under the Apache License, Version 2.0 (the "License");
-  you may not use this file except in compliance with the License.
-  You may obtain a copy of the License at
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
 
       http://www.apache.org/licenses/LICENSE-2.0
 
@@ -16,131 +17,37 @@
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
-
-  <groupId>io.github.astralway</groupId>
+  <parent>
+    <groupId>org.apache.fluo</groupId>
+    <artifactId>fluo-examples</artifactId>
+    <version>1-SNAPSHOT</version>
+  </parent>
   <artifactId>stresso</artifactId>
   <version>0.0.1-SNAPSHOT</version>
   <packaging>jar</packaging>
-
   <name>Stresso</name>
   <description>This repo contains an example application designed to stress Apache Fluo</description>
   <url>https://github.com/astralway/stresso</url>
-
   <properties>
-    <accumulo.version>2.0.0-alpha-2</accumulo.version>
     <accumulo-plugin.version>2.0.0-SNAPSHOT</accumulo-plugin.version>
-    <hadoop.version>3.1.1</hadoop.version>
-    <fluo.version>1.2.0</fluo.version>
+    <accumulo.version>2.0.0-alpha-2</accumulo.version>
     <fluo-recipes.version>1.2.0</fluo-recipes.version>
+    <fluo.version>1.2.0</fluo.version>
+    <hadoop.version>3.1.1</hadoop.version>
     <slf4j.version>1.7.12</slf4j.version>
   </properties>
-
-  <profiles>
-    <profile>
-      <id>mini-accumulo</id>
-      <activation>
-        <property>
-          <name>!skipTests</name>
-        </property>
-      </activation>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>org.apache.accumulo</groupId>
-            <artifactId>accumulo-maven-plugin</artifactId>
-	    <version>${accumulo-plugin.version}</version>
-            <configuration>
-              <instanceName>it-instance-maven</instanceName>
-              <rootPassword>ITSecret</rootPassword>
-            </configuration>
-            <executions>
-              <execution>
-                <id>run-plugin</id>
-                <goals>
-                  <goal>start</goal>
-                  <goal>stop</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-  </profiles>
-
-  <build>
-    <plugins>
-      <plugin>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.1</version>
-        <configuration>
-          <source>1.8</source>
-          <target>1.8</target>
-          <optimize>true</optimize>
-          <encoding>UTF-8</encoding>
-        </configuration>
-      </plugin>
-
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-	<artifactId>maven-failsafe-plugin</artifactId>
-	<version>3.0.0-M1</version>
-        <configuration>
-          <systemPropertyVariables>
-            <fluo.it.instance.name>it-instance-maven</fluo.it.instance.name>
-            <fluo.it.instance.clear>false</fluo.it.instance.clear>
-          </systemPropertyVariables>
-        </configuration>
-        <executions>
-          <execution>
-            <id>run-integration-tests</id>
-            <goals>
-              <goal>integration-test</goal>
-              <goal>verify</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-	<artifactId>maven-shade-plugin</artifactId>
-	<version>3.2.1</version>
-        <executions>
-          <execution>
-            <goals>
-              <goal>shade</goal>
-            </goals>
-            <phase>package</phase>
-            <configuration>
-              <shadedArtifactAttached>true</shadedArtifactAttached>
-              <shadedClassifierName>shaded</shadedClassifierName>
-              <filters>
-                <filter>
-                  <artifact>*:*</artifact>
-                  <excludes>
-                    <exclude>META-INF/*.SF</exclude>
-                    <exclude>META-INF/*.DSA</exclude>
-                    <exclude>META-INF/*.RSA</exclude>
-                  </excludes>
-                </filter>
-              </filters>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-
-    </plugins>
-  </build>
-
   <!--
        The provided scope is used for dependencies that should not end up in
        the shaded jar.  The shaded jar is used to run map reduce jobs via the yarn
        command.  The yarn command will provided hadoop dependencies, so they are not
        needed in the shaded jar.
   -->
-
   <dependencies>
+    <dependency>
+      <groupId>org.apache.accumulo</groupId>
+      <artifactId>accumulo-core</artifactId>
+      <version>${accumulo.version}</version>
+    </dependency>
     <dependency>
       <groupId>org.apache.fluo</groupId>
       <artifactId>fluo-api</artifactId>
@@ -162,9 +69,9 @@
       <version>${fluo-recipes.version}</version>
     </dependency>
     <dependency>
-      <groupId>org.apache.accumulo</groupId>
-      <artifactId>accumulo-core</artifactId>
-      <version>${accumulo.version}</version>
+      <groupId>org.apache.fluo</groupId>
+      <artifactId>fluo-recipes-test</artifactId>
+      <version>${fluo-recipes.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.hadoop</groupId>
@@ -196,6 +103,12 @@
       <version>${slf4j.version}</version>
       <scope>provided</scope>
     </dependency>
+    <dependency>
+      <groupId>commons-io</groupId>
+      <artifactId>commons-io</artifactId>
+      <version>2.4</version>
+      <scope>test</scope>
+    </dependency>
     <!-- Test Dependencies -->
     <dependency>
       <groupId>junit</groupId>
@@ -215,16 +128,98 @@
       <version>${fluo.version}</version>
       <scope>test</scope>
     </dependency>
-    <dependency>
-      <groupId>org.apache.fluo</groupId>
-      <artifactId>fluo-recipes-test</artifactId>
-      <version>${fluo-recipes.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>commons-io</groupId>
-      <artifactId>commons-io</artifactId>
-      <version>2.4</version>
-      <scope>test</scope>
-    </dependency>
   </dependencies>
+  <build>
+    <plugins>
+      <plugin>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.1</version>
+        <configuration>
+          <source>1.8</source>
+          <target>1.8</target>
+          <optimize>true</optimize>
+          <encoding>UTF-8</encoding>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-failsafe-plugin</artifactId>
+        <version>3.0.0-M1</version>
+        <configuration>
+          <systemPropertyVariables>
+            <fluo.it.instance.name>it-instance-maven</fluo.it.instance.name>
+            <fluo.it.instance.clear>false</fluo.it.instance.clear>
+          </systemPropertyVariables>
+        </configuration>
+        <executions>
+          <execution>
+            <id>run-integration-tests</id>
+            <goals>
+              <goal>integration-test</goal>
+              <goal>verify</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-shade-plugin</artifactId>
+        <version>3.2.1</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>shade</goal>
+            </goals>
+            <phase>package</phase>
+            <configuration>
+              <shadedArtifactAttached>true</shadedArtifactAttached>
+              <shadedClassifierName>shaded</shadedClassifierName>
+              <filters>
+                <filter>
+                  <artifact>*:*</artifact>
+                  <excludes>
+                    <exclude>META-INF/*.SF</exclude>
+                    <exclude>META-INF/*.DSA</exclude>
+                    <exclude>META-INF/*.RSA</exclude>
+                  </excludes>
+                </filter>
+              </filters>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+  <profiles>
+    <profile>
+      <id>mini-accumulo</id>
+      <activation>
+        <property>
+          <name>!skipTests</name>
+        </property>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.accumulo</groupId>
+            <artifactId>accumulo-maven-plugin</artifactId>
+            <version>${accumulo-plugin.version}</version>
+            <configuration>
+              <instanceName>it-instance-maven</instanceName>
+              <rootPassword>ITSecret</rootPassword>
+            </configuration>
+            <executions>
+              <execution>
+                <id>run-plugin</id>
+                <goals>
+                  <goal>start</goal>
+                  <goal>stop</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
 </project>
