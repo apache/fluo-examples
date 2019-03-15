@@ -19,7 +19,6 @@ package webindex.data.fluo;
 
 import java.net.MalformedURLException;
 
-import org.junit.Assert;
 import org.junit.Test;
 
 import webindex.core.models.Page;
@@ -34,7 +33,7 @@ public class PageLoaderTest {
 	}
 	
 	@Test(expected = IllegalArgumentException.class)
-	public void testEmptyPageThrowsIllegalArgument() {
+	public void testUpdatePageWithEmptyPage() {
 		Page p = Page.EMPTY;
 		PageLoader.updatePage(p);
 	}
@@ -46,33 +45,27 @@ public class PageLoaderTest {
 		} catch (MalformedURLException e) {
 			
 		}
-		
 	}
 	
 	@Test
 	public void testDeletePageWithBlankURL() {
-		URL url = new URL("","","",0,false,false);
 		try {
+			URL url = new URL("","","",0,false,false);
 			PageLoader.deletePage(url);
 		} catch (MalformedURLException e) {
 			
 		}
 	}
 	
-	//This test wont make sense until PageLoader.deletePage() handles non null empty URLS
 	@Test
 	public void testLoadWithNullTxCtx() {
-		URL url = new URL("","","",0,false,false);
-		PageLoader loader;
 		try {
-			loader = PageLoader.deletePage(url);
+			URL url = new URL("www.apache.org", "www.apache.org", "http://www.apache.org", 80, false, false);
+			PageLoader loader = PageLoader.deletePage(url);
 			loader.load(null, null);
-		} catch (NullPointerException e) {	
-			Assert.fail();
-		} catch (MalformedURLException e) {
-			// from PageLoader.deletePage()
 		} catch (Exception e) {
-			// from PageLoader.load()
+			if(e instanceof NullPointerException)
+				throw new NullPointerException(e.getMessage());
 		}
 	}
 }
