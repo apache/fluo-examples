@@ -34,31 +34,22 @@ public class PageLoaderTest {
 	
 	@Test(expected = IllegalArgumentException.class)
 	public void testUpdatePageWithEmptyPage() {
-		Page p = Page.EMPTY;
-		PageLoader.updatePage(p);
+		PageLoader.updatePage(Page.EMPTY);
 	}
 	
 	@Test(expected = NullPointerException.class)
-	public void testDeletePageThrowsNPEifNullURL() {
-		try {
-			PageLoader.deletePage((URL)null);
-		} catch (MalformedURLException e) {
-			
-		}
+	public void testDeletePageThrowsNPEifNullURL() throws MalformedURLException{
+		PageLoader.deletePage((URL)null);
 	}
 	
 	@Test
-	public void testDeletePageWithBlankURL() {
-		try {
+	public void testDeletePageWithBlankURL() throws MalformedURLException{
 			URL url = new URL("","","",0,false,false);
 			PageLoader.deletePage(url);
-		} catch (MalformedURLException e) {
-			
-		}
 	}
 	
 	@Test
-	public void testLoadWithNullTxCtx() {
+	public void testLoadWithNullTxCtx() throws MalformedURLException{
 		try {
 			URL url = new URL("www.apache.org", "www.apache.org", "http://www.apache.org", 80, false, false);
 			PageLoader loader = PageLoader.deletePage(url);
