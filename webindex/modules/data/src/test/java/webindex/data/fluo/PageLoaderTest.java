@@ -49,14 +49,9 @@ public class PageLoaderTest {
 	}
 	
 	@Test
-	public void testLoadWithNullTxCtx() throws MalformedURLException{
-		try {
-			URL url = new URL("www.apache.org", "www.apache.org", "http://www.apache.org", 80, false, false);
-			PageLoader loader = PageLoader.deletePage(url);
-			loader.load(null, null);
-		} catch (Exception e) {
-			if(e instanceof NullPointerException)
-				throw new NullPointerException(e.getMessage());
-		}
+	public void testLoadWithNullTxCtx() throws Exception{
+		URL url = new URL("www.apache.org", "www.apache.org", "http://www.apache.org", 80, false, false);
+		PageLoader loader = PageLoader.deletePage(url);
+		loader.load(null, null);
 	}
 }
