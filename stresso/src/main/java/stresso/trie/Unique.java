@@ -69,7 +69,7 @@ public class Unique extends Configured implements Tool {
 
     if (args.length < 1) {
       log.error("Usage: " + this.getClass().getSimpleName() + "<input dir>{ <input dir>}");
-      System.exit(-1);
+      return -1;
     }
 
     JobConf job = new JobConf(getConf());

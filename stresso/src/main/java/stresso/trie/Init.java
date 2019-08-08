@@ -134,7 +134,7 @@ public class Init extends Configured implements Tool {
     if (args.length != 4) {
       System.err.println("Usage: " + this.getClass().getSimpleName()
           + "  <fluo conn props> <app name> <input dir> <tmp dir>");
-      System.exit(-1);
+      return -1;
     }
 
     FluoConfiguration props = new FluoConfiguration(new File(args[0]));

@@ -65,6 +65,11 @@ public class Print {
 
       return false;
     }
+
+    @Override
+    public int hashCode() {
+      throw new UnsupportedOperationException();
+    }
   }
 
   public static Stats getStats(SimpleConfiguration config) throws Exception {

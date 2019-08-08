@@ -27,12 +27,13 @@ import org.junit.Test;
 import stresso.trie.Constants;
 import stresso.trie.Node;
 import stresso.trie.NodeObserver;
+import stresso.trie.StressoObserverProvider;
 
 public class TrieStopLevelIT extends TrieMapRedIT {
 
   @Override
   protected void preInit(FluoConfiguration conf) {
-    conf.addObserver(new ObserverSpecification(NodeObserver.class.getName()));
+    conf.setObserverProvider(StressoObserverProvider.class);
 
     SimpleConfiguration appCfg = conf.getAppConfiguration();
     appCfg.setProperty(Constants.STOP_LEVEL_PROP, 7);

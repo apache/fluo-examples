@@ -36,6 +36,7 @@ import stresso.trie.Constants;
 import stresso.trie.Node;
 import stresso.trie.NodeObserver;
 import stresso.trie.NumberLoader;
+import stresso.trie.StressoObserverProvider;
 
 import static stresso.trie.Constants.COUNT_SEEN_COL;
 import static stresso.trie.Constants.TYPEL;
@@ -49,7 +50,7 @@ public class TrieBasicIT extends ITBase {
 
   @Override
   protected void preInit(FluoConfiguration conf) {
-    conf.addObserver(new ObserverSpecification(NodeObserver.class.getName()));
+    conf.setObserverProvider(StressoObserverProvider.class);
     conf.getAppConfiguration().setProperty(Constants.STOP_LEVEL_PROP, 0);
   }
 
@@ -111,6 +112,7 @@ public class TrieBasicIT extends ITBase {
         if (result == null) {
           log.error("Could not find root node");
           FluoITHelper.printFluoTable(client);
+          result = 0;
         } else if (!result.equals(uniqueNum)) {
           log.error(
               "Count (" + result + ") at root node does not match expected (" + uniqueNum + "):");

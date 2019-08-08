@@ -45,10 +45,11 @@ public class AccumuloUtil {
     try (FluoAdmin fadmin = FluoFactory.newAdmin(fc)) {
       FluoConfiguration appCfg = new FluoConfiguration(fadmin.getApplicationConfig());
       appCfg.setApplicationName(fc.getApplicationName());
-      AccumuloClient client =
+      try (AccumuloClient client =
           Accumulo.newClient().to(appCfg.getAccumuloInstance(), appCfg.getAccumuloZookeepers())
-              .as(appCfg.getAccumuloUser(), appCfg.getAccumuloPassword()).build();
-      return tableOp.run(client.tableOperations(), appCfg.getAccumuloTable());
+              .as(appCfg.getAccumuloUser(), appCfg.getAccumuloPassword()).build()) {
+        return tableOp.run(client.tableOperations(), appCfg.getAccumuloTable());
+      }
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
