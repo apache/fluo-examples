@@ -138,5 +138,5 @@ Run the following command to run the webindex UI which can be viewed at
 The UI queries indexes stored in Accumulo that were exported by Fluo.
 
 [Uno]: https://github.com/astralway/uno
-[transient]: https://github.com/apache/fluo-recipes/blob/master/docs/transient.md
+[transient]: https://github.com/apache/fluo-recipes/blob/main/docs/transient.md
 [cdata]: https://commoncrawl.org/the-data/get-started/
