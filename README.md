@@ -15,4 +15,12 @@ See the License for the specific language governing permissions and
 limitations under the License.
 -->
 
-Examples for Apache Fluo
+# Examples for Apache Fluo
+
+[![Build Status][ti]][tl] [![Apache License][li]][ll]
+
+[ti]: https://github.com/apache/fluo-examples/workflows/CI/badge.svg
+[tl]: https://github.com/apache/fluo-examples/actions
+[li]: http://img.shields.io/badge/license-ASL-blue.svg
+[ll]: https://github.com/apache/fluo-examples/blob/main/LICENSE
+
