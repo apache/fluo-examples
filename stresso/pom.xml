@@ -29,8 +29,8 @@
   <description>This repo contains an example application designed to stress Apache Fluo</description>
   <url>https://github.com/astralway/stresso</url>
   <properties>
-    <accumulo-plugin.version>2.0.0-SNAPSHOT</accumulo-plugin.version>
-    <accumulo.version>2.0.0-alpha-2</accumulo.version>
+    <accumulo.version>2.0.0</accumulo.version>
+    <accumulo2-plugin.version>1.0.0</accumulo2-plugin.version>
     <fluo-recipes.version>1.2.0</fluo-recipes.version>
     <fluo.version>1.2.0</fluo.version>
     <hadoop.version>3.1.1</hadoop.version>
@@ -132,16 +132,6 @@
   <build>
     <plugins>
       <plugin>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.1</version>
-        <configuration>
-          <source>1.8</source>
-          <target>1.8</target>
-          <optimize>true</optimize>
-          <encoding>UTF-8</encoding>
-        </configuration>
-      </plugin>
-      <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-failsafe-plugin</artifactId>
         <version>3.0.0-M1</version>
@@ -209,8 +199,8 @@
         <plugins>
           <plugin>
             <groupId>org.apache.accumulo</groupId>
-            <artifactId>accumulo-maven-plugin</artifactId>
-            <version>${accumulo-plugin.version}</version>
+            <artifactId>accumulo2-maven-plugin</artifactId>
+            <version>${accumulo2-plugin.version}</version>
             <configuration>
               <instanceName>it-instance-maven</instanceName>
               <rootPassword>ITSecret</rootPassword>
