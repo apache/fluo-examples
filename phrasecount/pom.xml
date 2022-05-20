@@ -28,7 +28,7 @@
   <name>phrasecount</name>
   <url>https://github.com/astralway/phrasecount</url>
   <properties>
-    <accumulo.version>1.10.0</accumulo.version>
+    <accumulo.version>1.10.1</accumulo.version>
     <fluo-recipes.version>1.0.0-incubating</fluo-recipes.version>
     <fluo.version>1.0.0-incubating</fluo.version>
   </properties>
