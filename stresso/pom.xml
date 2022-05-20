@@ -29,7 +29,7 @@
   <description>This repo contains an example application designed to stress Apache Fluo</description>
   <url>https://github.com/astralway/stresso</url>
   <properties>
-    <accumulo.version>2.0.0</accumulo.version>
+    <accumulo.version>2.0.1</accumulo.version>
     <accumulo2-plugin.version>1.0.0</accumulo2-plugin.version>
     <fluo-recipes.version>1.2.0</fluo-recipes.version>
     <fluo.version>1.2.0</fluo.version>
