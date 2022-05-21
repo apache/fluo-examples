@@ -40,7 +40,7 @@
     <fluo.version>1.2.0</fluo.version>
     <hadoop.version>2.6.3</hadoop.version>
     <spark.version>1.6.2</spark.version>
-    <thrift.version>0.9.1</thrift.version>
+    <thrift.version>0.14.0</thrift.version>
   </properties>
   <dependencyManagement>
     <dependencies>
