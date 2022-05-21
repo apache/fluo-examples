@@ -40,7 +40,6 @@
     <fluo.version>1.2.0</fluo.version>
     <hadoop.version>2.6.3</hadoop.version>
     <spark.version>1.6.2</spark.version>
-    <thrift.version>0.14.0</thrift.version>
   </properties>
   <dependencyManagement>
     <dependencies>
@@ -174,11 +173,6 @@
         <groupId>org.apache.spark</groupId>
         <artifactId>spark-core_2.10</artifactId>
         <version>${spark.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.thrift</groupId>
-        <artifactId>libthrift</artifactId>
-        <version>${thrift.version}</version>
       </dependency>
       <dependency>
         <groupId>org.apache.zookeeper</groupId>
