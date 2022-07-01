@@ -38,7 +38,7 @@
     <accumulo.version>1.10.1</accumulo.version>
     <fluo-recipes.version>1.1.0-incubating</fluo-recipes.version>
     <fluo.version>1.2.0</fluo.version>
-    <hadoop.version>2.6.3</hadoop.version>
+    <hadoop.version>2.7.0</hadoop.version>
     <spark.version>1.6.2</spark.version>
   </properties>
   <dependencyManagement>
