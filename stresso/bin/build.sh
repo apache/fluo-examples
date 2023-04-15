@@ -32,4 +32,4 @@ mkdir -p lib
 # populate lib dir used by fluo init
 rm -f lib/*
 cp target/stresso-0.0.1-SNAPSHOT.jar ./lib/
-mvn dependency:copy-dependencies  -DincludeArtifactIds=fluo-recipes-core,commons-collections -DoutputDirectory=./lib
+mvn dependency:copy-dependencies -Dfluo.version=$FLUO_VERSION -Daccumulo.version=$ACCUMULO_VERSION -DincludeArtifactIds=fluo-recipes-core,commons-collections -DoutputDirectory=./lib
