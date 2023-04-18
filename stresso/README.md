@@ -17,8 +17,6 @@ limitations under the License.
 
 # Stresso
 
-[![Build Status](https://travis-ci.org/astralway/stresso.svg?branch=master)](https://travis-ci.org/astralway/stresso)
-
 An example application designed to stress Apache Fluo.  This Fluo application computes the
 number of unique integers through the process of building a bitwise trie.  New numbers
 are added to the trie as leaf nodes.  Observers watch all nodes in the trie to create

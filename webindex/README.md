@@ -17,7 +17,6 @@ limitations under the License.
 
 ![Webindex][logo]
 ---
-[![Build Status][ti]][tl] [![Apache License][li]][ll]
 
 Webindex is an example [Apache Fluo][fluo] application that incrementally indexes links to web pages
 in multiple ways. If you are new to Fluo, you may want start with the [Fluo tour][tour] as the
@@ -85,9 +84,5 @@ the WebIndex Grafana dashboard located at `contrib/webindex-dashboard.json`.
 [Uno]: https://github.com/astralway/uno
 [cc]: https://commoncrawl.org/
 [install]: docs/install.md
-[ti]: https://travis-ci.org/astralway/webindex.svg?branch=master
-[tl]: https://travis-ci.org/astralway/webindex
-[li]: http://img.shields.io/badge/license-ASL-blue.svg
-[ll]: https://github.com/astralway/webindex/blob/master/LICENSE
 [logo]: contrib/webindex.png
 [bp]: https://fluo.apache.org/blog/2016/01/11/webindex-long-run/#videos-from-run

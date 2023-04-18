@@ -17,7 +17,6 @@
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
-
   <parent>
     <groupId>org.apache.fluo</groupId>
     <artifactId>fluo-parent</artifactId>
@@ -27,15 +26,48 @@
   <artifactId>fluo-examples</artifactId>
   <version>1-SNAPSHOT</version>
   <packaging>pom</packaging>
-
   <name>Fluo Examples</name>
   <description>This repo contains several example applications for Apache Fluo</description>
   <url>https://fluo.apache.org</url>
-
   <modules>
     <module>stresso</module>
     <module>phrasecount</module>
     <module>webindex</module>
   </modules>
-
+  <properties>
+    <maven.compiler.release>8</maven.compiler.release>
+    <maven.compiler.source>1.8</maven.compiler.source>
+    <maven.compiler.target>1.8</maven.compiler.target>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  </properties>
+  <build>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-compiler-plugin</artifactId>
+          <version>3.8.1</version>
+          <configuration>
+            <optimize>true</optimize>
+            <encoding>UTF-8</encoding>
+          </configuration>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-enforcer-plugin</artifactId>
+          <version>3.0.0-M3</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-javadoc-plugin</artifactId>
+          <version>3.2.0</version>
+          <configuration>
+            <quiet>true</quiet>
+            <additionalJOption>-J-Xmx512m</additionalJOption>
+            <doclint>all,-missing</doclint>
+          </configuration>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+  </build>
 </project>

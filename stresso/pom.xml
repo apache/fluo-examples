@@ -31,6 +31,7 @@
   <properties>
     <accumulo-plugin.version>1.0.0</accumulo-plugin.version>
     <accumulo.version>2.1.0</accumulo.version>
+    <accumulo2-plugin.version>1.0.0</accumulo2-plugin.version>
     <!-- Prevent findbugs from runnning because it does not work with Java 11 and is configured to run by parent pom. -->
     <findbugs.skip>true</findbugs.skip>
     <fluo-recipes.version>1.2.0</fluo-recipes.version>
@@ -109,14 +110,14 @@
     <dependency>
       <groupId>commons-io</groupId>
       <artifactId>commons-io</artifactId>
-      <version>2.4</version>
+      <version>2.7</version>
       <scope>test</scope>
     </dependency>
     <!-- Test Dependencies -->
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
-      <version>4.11</version>
+      <version>4.13.1</version>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -134,16 +135,6 @@
   </dependencies>
   <build>
     <plugins>
-      <plugin>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.1</version>
-        <configuration>
-          <source>1.8</source>
-          <target>1.8</target>
-          <optimize>true</optimize>
-          <encoding>UTF-8</encoding>
-        </configuration>
-      </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-failsafe-plugin</artifactId>
@@ -213,7 +204,7 @@
           <plugin>
             <groupId>org.apache.accumulo</groupId>
             <artifactId>accumulo2-maven-plugin</artifactId>
-            <version>${accumulo-plugin.version}</version>
+            <version>${accumulo2-plugin.version}</version>
             <configuration>
               <instanceName>it-instance-maven</instanceName>
               <rootPassword>ITSecret</rootPassword>
