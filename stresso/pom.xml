@@ -30,12 +30,14 @@
   <url>https://github.com/astralway/stresso</url>
   <properties>
     <accumulo-plugin.version>1.0.0</accumulo-plugin.version>
-    <accumulo.version>2.0.0</accumulo.version>
+    <accumulo.version>2.1.0</accumulo.version>
+    <!-- Prevent findbugs from runnning because it does not work with Java 11 and is configured to run by parent pom. -->
+    <findbugs.skip>true</findbugs.skip>
     <fluo-recipes.version>1.2.0</fluo-recipes.version>
-    <fluo.version>1.3.0-SNAPSHOT</fluo.version>
-    <hadoop.version>3.2.0</hadoop.version>
-    <slf4j.version>1.7.12</slf4j.version>
-    <zookeeper.version>3.4.14</zookeeper.version>
+    <fluo.version>2.0.0</fluo.version>
+    <hadoop.version>3.3.5</hadoop.version>
+    <slf4j.version>1.7.36</slf4j.version>
+    <zookeeper.version>3.8.1</zookeeper.version>
   </properties>
   <!--
        The provided scope is used for dependencies that should not end up in
