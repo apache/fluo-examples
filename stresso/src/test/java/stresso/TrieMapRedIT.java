@@ -37,6 +37,7 @@ import stresso.trie.Init;
 import stresso.trie.Load;
 import stresso.trie.NodeObserver;
 import stresso.trie.Print;
+import stresso.trie.StressoObserverProvider;
 import stresso.trie.Unique;
 
 /**
@@ -46,7 +47,7 @@ public class TrieMapRedIT extends ITBase {
 
   @Override
   protected void preInit(FluoConfiguration conf) {
-    conf.addObserver(new ObserverSpecification(NodeObserver.class.getName()));
+    conf.setObserverProvider(StressoObserverProvider.class);
 
     SimpleConfiguration appCfg = conf.getAppConfiguration();
     appCfg.setProperty(Constants.STOP_LEVEL_PROP, 0);
@@ -60,16 +61,19 @@ public class TrieMapRedIT extends ITBase {
     Assert.assertEquals(0, ret);
   }
 
-  static void load(int nodeSize, File fluoPropsFile, File input) throws Exception {
-    int ret = ToolRunner.run(new Load(), new String[] {"-D", "mapred.job.tracker=local", "-D",
-        "fs.defaultFS=file:///", fluoPropsFile.getAbsolutePath(), input.toURI().toString()});
+  static void load(int nodeSize, File fluoPropsFile, String appName, File input) throws Exception {
+    int ret = ToolRunner.run(new Load(),
+        new String[] {"-D", "mapred.job.tracker=local", "-D", "fs.defaultFS=file:///",
+            fluoPropsFile.getAbsolutePath(), appName, input.toURI().toString()});
     Assert.assertEquals(0, ret);
   }
 
-  static void init(int nodeSize, File fluoPropsFile, File input, File tmp) throws Exception {
+  static void init(int nodeSize, File fluoPropsFile, String appName, File input, File tmp)
+      throws Exception {
     int ret = ToolRunner.run(new Init(),
         new String[] {"-D", "mapred.job.tracker=local", "-D", "fs.defaultFS=file:///",
-            fluoPropsFile.getAbsolutePath(), input.toURI().toString(), tmp.toURI().toString()});
+            fluoPropsFile.getAbsolutePath(), appName, input.toURI().toString(),
+            tmp.toURI().toString()});
     Assert.assertEquals(0, ret);
   }
 
@@ -90,15 +94,16 @@ public class TrieMapRedIT extends ITBase {
   public void testEndToEnd() throws Exception {
     File testDir = new File("target/MRIT");
     FileUtils.deleteQuietly(testDir);
-    testDir.mkdirs();
+    Assert.assertTrue(testDir.mkdirs());
     File fluoPropsFile = new File(testDir, "fluo.props");
 
     config.save(fluoPropsFile);
+    String appName = config.getApplicationName();
 
     File out1 = new File(testDir, "nums-1");
 
     generate(2, 100, 500, out1);
-    init(8, fluoPropsFile, out1, new File(testDir, "initTmp"));
+    init(8, fluoPropsFile, appName, out1, new File(testDir, "initTmp"));
     int ucount = unique(out1);
 
     Assert.assertTrue(ucount > 0);
@@ -108,7 +113,7 @@ public class TrieMapRedIT extends ITBase {
     Assert.assertEquals(new Print.Stats(0, ucount, false), Print.getStats(config));
 
     // reload same data
-    load(8, fluoPropsFile, out1);
+    load(8, fluoPropsFile, appName, out1);
 
     miniFluo.waitForObservers();
 
@@ -117,7 +122,7 @@ public class TrieMapRedIT extends ITBase {
     // load some new data
     File out2 = new File(testDir, "nums-2");
     generate(2, 100, 500, out2);
-    load(8, fluoPropsFile, out2);
+    load(8, fluoPropsFile, appName, out2);
     int ucount2 = unique(out1, out2);
     Assert.assertTrue(ucount2 > ucount); // used > because the probability that no new numbers are
                                          // chosen is exceedingly small
@@ -128,7 +133,7 @@ public class TrieMapRedIT extends ITBase {
 
     File out3 = new File(testDir, "nums-3");
     generate(2, 100, 500, out3);
-    load(8, fluoPropsFile, out3);
+    load(8, fluoPropsFile, appName, out3);
     int ucount3 = unique(out1, out2, out3);
     Assert.assertTrue(ucount3 > ucount2); // used > because the probability that no new numbers are
                                           // chosen is exceedingly small

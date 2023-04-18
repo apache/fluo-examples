@@ -135,7 +135,7 @@ public class Generate extends Configured implements Tool {
     if (args.length != 4) {
       log.error("Usage: " + this.getClass().getSimpleName()
           + " <numMappers> <numbersPerMapper> <max> <output dir>");
-      System.exit(-1);
+      return -1;
     }
 
     int numMappers = Integer.parseInt(args[0]);

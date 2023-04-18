@@ -52,9 +52,9 @@ public class Load extends Configured implements Tool {
   public int run(String[] args) throws Exception {
 
     if (args.length != 3) {
-      log.error(
-          "Usage: " + this.getClass().getSimpleName() + "<fluo conn props> <app name> <input dir>");
-      System.exit(-1);
+      log.error("Usage: " + this.getClass().getSimpleName()
+          + " <fluo conn props> <app name> <input dir>");
+      return -1;
     }
 
     FluoConfiguration props = new FluoConfiguration(new File(args[0]));

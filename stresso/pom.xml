@@ -29,12 +29,16 @@
   <description>This repo contains an example application designed to stress Apache Fluo</description>
   <url>https://github.com/astralway/stresso</url>
   <properties>
-    <accumulo.version>2.0.1</accumulo.version>
+    <accumulo-plugin.version>1.0.0</accumulo-plugin.version>
+    <accumulo.version>2.1.0</accumulo.version>
     <accumulo2-plugin.version>1.0.0</accumulo2-plugin.version>
+    <!-- Prevent findbugs from runnning because it does not work with Java 11 and is configured to run by parent pom. -->
+    <findbugs.skip>true</findbugs.skip>
     <fluo-recipes.version>1.2.0</fluo-recipes.version>
-    <fluo.version>1.2.0</fluo.version>
-    <hadoop.version>3.1.1</hadoop.version>
-    <slf4j.version>1.7.12</slf4j.version>
+    <fluo.version>2.0.0</fluo.version>
+    <hadoop.version>3.3.5</hadoop.version>
+    <slf4j.version>1.7.36</slf4j.version>
+    <zookeeper.version>3.8.1</zookeeper.version>
   </properties>
   <!--
        The provided scope is used for dependencies that should not end up in
@@ -205,6 +209,28 @@
               <instanceName>it-instance-maven</instanceName>
               <rootPassword>ITSecret</rootPassword>
             </configuration>
+            <dependencies>
+              <dependency>
+                <groupId>org.apache.accumulo</groupId>
+                <artifactId>accumulo-minicluster</artifactId>
+                <version>${accumulo.version}</version>
+              </dependency>
+              <dependency>
+                <groupId>org.apache.hadoop</groupId>
+                <artifactId>hadoop-client-api</artifactId>
+                <version>${hadoop.version}</version>
+              </dependency>
+              <dependency>
+                <groupId>org.apache.hadoop</groupId>
+                <artifactId>hadoop-client-runtime</artifactId>
+                <version>${hadoop.version}</version>
+              </dependency>
+              <dependency>
+                <groupId>org.apache.zookeeper</groupId>
+                <artifactId>zookeeper</artifactId>
+                <version>${zookeeper.version}</version>
+              </dependency>
+            </dependencies>
             <executions>
               <execution>
                 <id>run-plugin</id>
